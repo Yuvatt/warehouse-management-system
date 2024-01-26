@@ -26,6 +26,7 @@ class Order {
         int getCollectorId() const;
         int getDriverId() const;
         OrderStatus getStatus() const;
+        const string getStatusString() const;
         const string toString() const;
         int getDistance() const;
         bool isValid();

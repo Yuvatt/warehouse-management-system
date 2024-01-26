@@ -1,15 +1,15 @@
 #pragma once
 
-#include <vector>
+#include <fstream>
 #include <iostream>
 #include <istream>
-#include <fstream>
 #include <sstream>
+#include <vector>
 
-#include "../include/Volunteer.h"
+#include "../include/Action.h"
 #include "../include/Customer.h"
 #include "../include/Order.h"
-#include "../include/Action.h"
+#include "../include/Volunteer.h"
 #include "../include/WareHouse.h"
 
 using namespace std;
@@ -17,19 +17,20 @@ using std::string;
 using std::vector;
 
 WareHouse::WareHouse(const string &configFilePath) {}
-const vector<BaseAction *>& WareHouse::getActions() const {
-    return actionsLog;
+void WareHouse::start() {
+    open();
+    
 }
+const vector<BaseAction *> &WareHouse::getActions() const { return actionsLog; }
 void WareHouse::addOrder(Order *order) {
     int cId = order->getCustomerId(); // customer id
     bool found = false;
     for (Customer *c : customers) {
-        if (c->getId() == cId){
+        if (c->getId() == cId) {
             found = true;
             if (!c->canMakeOrder()) {
                 cout << "Cannot Place This Order" << endl;
-            }
-            else {
+            } else {
                 pendingOrders.push_back(order);
                 c->addOrder(order->getId()); // maybe idk
             }
@@ -38,9 +39,8 @@ void WareHouse::addOrder(Order *order) {
     if (!found)
         cout << "Cannot Place This Order" << endl;
 }
-void WareHouse::addAction(BaseAction *action) {
-    actionsLog.push_back(action);
-}
+void WareHouse::addAction(BaseAction *action) { actionsLog.push_back(action); }
+
 Customer &WareHouse::getCustomer(int customerId) const { // maybe return ????
     for (Customer *c : customers) {
         if (c->getId() == customerId) {
@@ -62,61 +62,64 @@ Volunteer &WareHouse::getVolunteer(int volunteerId) const { // return what
     }
 }
 Order &WareHouse::getOrder(int orderId) const {
-    Order* order = nullptr;
-    for(Order *o : pendingOrders){
-        if(o->getId() == orderId)
+    Order *order = nullptr;
+    for (Order *o : pendingOrders) {
+        if (o->getId() == orderId)
             order = o;
     }
-    for(Order *o : inProcessOrders){
-        if(o->getId() == orderId)
+    for (Order *o : inProcessOrders) {
+        if (o->getId() == orderId)
             order = o;
     }
-    for(Order *o : completedOrders){
-        if(o->getId() == orderId)
-            order = o;  
-    } 
-    return *order;    
+    for (Order *o : completedOrders) {
+        if (o->getId() == orderId)
+            order = o;
+    }
+    return *order;
 }
 
 void WareHouse::close() {
 
-    for(Order *o : pendingOrders){
+    for (Order *o : pendingOrders) {
         std::cout << o->toString() << std::endl;
     }
-    for(Order *o : inProcessOrders){
-         std::cout << o->toString() << std::endl;
+    for (Order *o : inProcessOrders) {
+        std::cout << o->toString() << std::endl;
     }
-    for(Order *o : completedOrders){
-         std::cout << o->toString() << std::endl;
+    for (Order *o : completedOrders) {
+        std::cout << o->toString() << std::endl;
     }
     isOpen = false;
 }
 
-void WareHouse::open()
-{
+void WareHouse::open() {
     isOpen = true;
-    std::cout <<"WAREHOUSE IS OPEN!" << std::endl;
+    std::cout << "WAREHOUSE IS OPEN!" << std::endl;
+}
+bool WareHouse::isExist(int customerId) const {
+    for (Customer *c : customers) {
+        if (c->getId() == customerId) {
+            return true;
+        }
+    }
+    return false;
 }
 
-void WareHouse::parseText(const string &configFilePath)
-{
+void WareHouse::parseText(const string &configFilePath) {
 
     ifstream configFile(configFilePath);
-    if (!configFile.is_open())
-    {
+    if (!configFile.is_open()) {
         std::cerr << "Error opening the configuration file." << std::endl;
         return;
     }
 
     std::string line;
-    while (getline(configFile, line))
-    {
+    while (getline(configFile, line)) {
         std::istringstream iss(line);
         std::string type;
         iss >> type;
 
-        if (type == "customer")
-        {
+        if (type == "customer") {
             // Parse customer
             std::string name;
             std::string customerType;
@@ -126,27 +129,22 @@ void WareHouse::parseText(const string &configFilePath)
             iss >> name >> customerType >> distance >> maxOrders;
 
             Customer *newCustomer = nullptr;
-            if (customerType == "Soldier")
-            {
-                newCustomer = new SoldierCustomer(customers.size(), name, distance, maxOrders);
-            }
-            else if (customerType == "Civilian")
-            {
-                newCustomer = new CivilianCustomer(customers.size(), name, distance, maxOrders);
-            }
-            else
-            {
-                std::cerr << "Unknown customer type: " << customerType << std::endl;
+            if (customerType == "Soldier") {
+                newCustomer = new SoldierCustomer(customers.size(), name,
+                                                  distance, maxOrders);
+            } else if (customerType == "Civilian") {
+                newCustomer = new CivilianCustomer(customers.size(), name,
+                                                   distance, maxOrders);
+            } else {
+                std::cerr << "Unknown customer type: " << customerType
+                          << std::endl;
             }
 
             // add customer to warehouse
-            if (newCustomer)
-            {
+            if (newCustomer) {
                 customers.push_back(newCustomer);
             }
-        }
-        else if (type == "volunteer")
-        {
+        } else if (type == "volunteer") {
             // Parse volunteer
             std::string name;
             std::string volunteerType;
@@ -158,33 +156,29 @@ void WareHouse::parseText(const string &configFilePath)
             iss >> name >> volunteerType >> coolDown;
 
             Volunteer *newVolunteer = nullptr;
-            if (volunteerType == "collector")
-            {
-                newVolunteer = new CollectorVolunteer(volunteers.size(), name, coolDown);
-            }
-            else if (volunteerType == "limited_collector")
-            {
+            if (volunteerType == "collector") {
+                newVolunteer =
+                    new CollectorVolunteer(volunteers.size(), name, coolDown);
+            } else if (volunteerType == "limited_collector") {
                 iss >> maxOrders;
-                newVolunteer = new LimitedCollectorVolunteer(volunteers.size(), name, coolDown, maxOrders);
-            }
-            else if (volunteerType == "driver")
-            {
+                newVolunteer = new LimitedCollectorVolunteer(
+                    volunteers.size(), name, coolDown, maxOrders);
+            } else if (volunteerType == "driver") {
                 iss >> maxDistance >> distancePerStep;
-                newVolunteer = new DriverVolunteer(volunteers.size(), name, maxDistance, distancePerStep);
-            }
-            else if (volunteerType == "limited_driver")
-            {
+                newVolunteer = new DriverVolunteer(
+                    volunteers.size(), name, maxDistance, distancePerStep);
+            } else if (volunteerType == "limited_driver") {
                 iss >> maxDistance >> distancePerStep >> maxOrders;
-                newVolunteer = new LimitedDriverVolunteer(volunteers.size(), name, maxDistance, distancePerStep, maxOrders);
-            }
-            else
-            {
-                std::cerr << "Unknown volunteer type: " << volunteerType << std::endl;
+                newVolunteer = new LimitedDriverVolunteer(
+                    volunteers.size(), name, maxDistance, distancePerStep,
+                    maxOrders);
+            } else {
+                std::cerr << "Unknown volunteer type: " << volunteerType
+                          << std::endl;
             }
 
             // add to warehouse
-            if (newVolunteer)
-            {
+            if (newVolunteer) {
                 volunteers.push_back(newVolunteer);
             }
         }

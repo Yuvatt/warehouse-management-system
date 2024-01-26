@@ -24,6 +24,7 @@ class WareHouse {
         const vector<BaseAction*> &getActions() const;
         void close();
         void open();
+        bool isExist(int customerId) const; 
         void parseText(const string &configFilePath);
 
     private:

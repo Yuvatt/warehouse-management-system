@@ -1,13 +1,13 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
-#include "../include/WareHouse.h"
-#include "../include/Volunteer.h"
+#include "../include/Action.h"
 #include "../include/Customer.h"
 #include "../include/Order.h"
-#include "../include/Action.h"
+#include "../include/Volunteer.h"
+#include "../include/WareHouse.h"
 
 using std::string;
 using std::vector;
@@ -16,75 +16,55 @@ using std::vector;
 
 BaseAction::BaseAction() {}
 
-ActionStatus BaseAction::getStatus() const
-{
-    return status;
-}
+ActionStatus BaseAction::getStatus() const { return status; }
 
-void BaseAction::complete()
-{
-    status = ActionStatus::COMPLETED;
-}
+void BaseAction::complete() { status = ActionStatus::COMPLETED; }
 
-void BaseAction::error(string errorMsg)
-{
+void BaseAction::error(string errorMsg) {
     status = ActionStatus::ERROR;
     errorMsg = errorMsg;
 }
 
-string BaseAction::getErrorMsg() const
-{
-    return errorMsg;
-}
+string BaseAction::getErrorMsg() const { return errorMsg; }
 
 // AddOrder
 
 AddOrder::AddOrder(int id) : customerId(id) {}
 
-void AddOrder::act(WareHouse &wareHouse)
-{
+void AddOrder::act(WareHouse &wareHouse) {
     int distance = wareHouse.getCustomer(customerId).getCustomerDistance();
-    int newId = orderCounter+1;
+    int newId = orderCounter + 1;
     Order newOrder(newId, customerId, distance);
     wareHouse.addOrder(&newOrder);
 }
 
-string AddOrder::toString() const
-{
-    return "order been placed";
-}
+string AddOrder::toString() const { return "order been placed"; }
 
-AddOrder* AddOrder::clone() const
-{
-    return new AddOrder(*this);
-}
+AddOrder *AddOrder::clone() const { return new AddOrder(*this); }
 
 // AddCustomer
 
-AddCustomer::AddCustomer(const string &customerName, const string &customerType, int distance, int maxOrders) :
-customerName(customerName), customerType(stringToType(customerType)),distance(distance), maxOrders(maxOrders) {}
+AddCustomer::AddCustomer(const string &customerName, const string &customerType,
+                         int distance, int maxOrders)
+    :customerName(customerName), customerType(stringToType(customerType)),
+      distance(distance), maxOrders(maxOrders) {}
 
 void AddCustomer::act(WareHouse &wareHouse) {
-    int newId = customerCounter +1;
+    int newId = customerCounter + 1;
     if (customerType == CustomerType::Soldier) {
-        SoldierCustomer newCustomer(newId, customerName, distance,maxOrders);
+        SoldierCustomer newCustomer(newId, customerName, distance, maxOrders);
         wareHouse.AddCustomer(&newCustomer);
     }
     if (customerType == CustomerType::Civilian) {
-        CivilianCustomer newCustomer(newId, customerName, distance,maxOrders);
+        CivilianCustomer newCustomer(newId, customerName, distance, maxOrders);
         wareHouse.AddCustomer(&newCustomer);
     }
 }
 
-AddCustomer* AddCustomer::clone() const {
-    return new AddCustomer(*this);
-}
-string AddCustomer::toString() const {
-    return "Customer was added";
-}
+AddCustomer *AddCustomer::clone() const { return new AddCustomer(*this); }
+string AddCustomer::toString() const { return "Customer was added"; }
 
-CustomerType stringToType(const string &customerType)
-{
+CustomerType AddCustomer::stringToType(const string &customerType) {
     if (customerType == "soldier")
         return CustomerType::Soldier;
 
@@ -92,55 +72,65 @@ CustomerType stringToType(const string &customerType)
         return CustomerType::Civilian;
 }
 
-//printOrderStatus
+// printOrderStatus
 
-PrintOrderStatus::PrintOrderStatus(int id): orderId(id) {}
+PrintOrderStatus::PrintOrderStatus(int id) : orderId(id) {}
 
-void PrintOrderStatus:: act(WareHouse &wareHouse) {
+void PrintOrderStatus::act(WareHouse &wareHouse) {
     Order order = wareHouse.getOrder(orderId);
-     if(order.isValid()) 
-         std::cout << "ORDER DOESN'T EXIST" << std::endl;
+    if (order.isValid())
+        std::cout << "ORDER DOESN'T EXIST" << std::endl;
 
-    string CustomerId = "" + std::to_string(order.getCustomerId()); 
+    string CustomerId = "" + std::to_string(order.getCustomerId());
 
-    string status;
+    string status = order.getStatusString();
     string collectorId;
     string driverId;
 
-    if(order.getStatus() == OrderStatus::COLLECTING){
-        status = "COLLECTING";
-    }
-    else if(order.getStatus() == OrderStatus::DELIVERING){
-        status = "DELIVERING";
-    }
-    else if(order.getStatus() == OrderStatus::PENDING){
-        status = "PENDING";
-    }
-    else if(order.getStatus() == OrderStatus::COMPLETED){
-        status = "COMPLETED";
-    }
-
-    if(order.getDriverId() == -1)
+    if (order.getDriverId() == -1)
         driverId = "NONE";
-    else 
+    else
         driverId = std::to_string(order.getDriverId());
 
-     if(order.getCollectorId() == -1)
+    if (order.getCollectorId() == -1)
         collectorId = "NONE";
-    else 
+    else
         collectorId = std::to_string(order.getCollectorId());
 
-    string output = order.toString() + 
-    "OrderStatus:" + status +
-    "CustomerID:" + CustomerId +
-    "Collector:" + collectorId +
-    "Driver:" + driverId; 
+    string output = order.toString() + "OrderStatus:" + status +
+                    "CustomerID:" + CustomerId + "Collector:" + collectorId +
+                    "Driver:" + driverId;
+
+    std::cout << output << std::endl;
 }
 
-PrintOrderStatus* PrintOrderStatus::clone() const {
+PrintOrderStatus *PrintOrderStatus::clone() const {
     return new PrintOrderStatus(*this);
- }
- 
-string PrintOrderStatus::toString() const {
-
 }
+
+string PrintOrderStatus::toString() const {}
+
+// PrintCustomerStatus
+
+PrintCustomerStatus::PrintCustomerStatus(int customerId)
+    : customerId(customerId) {}
+
+void PrintCustomerStatus::act(WareHouse &wareHouse) {
+    if(!wareHouse.isExist(customerId))
+        std::cout << "Customer Doesnt Exist" << std::endl;
+    else{    
+    Customer* customer = wareHouse.getCustomer(customerId).clone();
+    //מצביע ללקוח, יוצרת לקוח חדש ששווה לאחד שאני מביאה
+
+    for (int id :customer->getOrdersIds()) {
+       std::cout<< wareHouse.getOrder(id).toString() << std::endl;
+    }
+
+    std::cout<< "numOrderLeft" << std::endl;
+    
+    }
+    
+}
+string PrintCustomerStatus::toString()const{}
+PrintCustomerStatus *PrintCustomerStatus::clone() const {}
+
