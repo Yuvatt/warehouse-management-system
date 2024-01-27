@@ -22,7 +22,7 @@ int Volunteer::getCompletedOrderId() const { return completedOrderId; }
 
 bool Volunteer::isBusy() const { return (activeOrderId != NO_ORDER); }
 
-// CollectorVolunteer: Volunteer
+//============= CollectorVolunteer: Volunteer =============================================
 
 CollectorVolunteer::CollectorVolunteer(int id, const string &name, int coolDown)
     : Volunteer(id, name), coolDown(coolDown) {}
@@ -52,6 +52,9 @@ void CollectorVolunteer::acceptOrder(const Order &order) {
         timeLeft = coolDown;
     }
 }
+string CollectorVolunteer:: getMyType() const {
+    return "collector";
+}
 
 string CollectorVolunteer::toString() const {
     string s = "volunteerID:" + getId();
@@ -61,7 +64,7 @@ string CollectorVolunteer::toString() const {
 
 void CollectorVolunteer::resetTimeLeft() { timeLeft = coolDown; }
 
-// LimitedCollectorVolunteer: public CollectorVolunteer {
+//============= LimitedCollectorVolunteer==================================
 
 LimitedCollectorVolunteer::LimitedCollectorVolunteer(int id, const string &name,
                                                      int coolDown,
@@ -90,13 +93,17 @@ int LimitedCollectorVolunteer::getMaxOrders() const { return maxOrders; }
 
 int LimitedCollectorVolunteer::getNumOrdersLeft() const { return ordersLeft; }
 
+string LimitedCollectorVolunteer:: getMyType() const {
+    return "limitedCollector";
+}
+
 string LimitedCollectorVolunteer::toString() const {
     string s = "volunteerID:" + getId();
     string m = ",ActiveOrder:" + getActiveOrderId();
     return s + m;
 }
 
-// DriverVolunteer: public Volunteer {
+//  ===========================DriverVolunteer =============================================
 
 DriverVolunteer::DriverVolunteer(int id, const string &name, int maxDistance,
                                  int distancePerStep)
@@ -134,6 +141,10 @@ void DriverVolunteer::acceptOrder(const Order &order) {
 
 void DriverVolunteer::step() { distanceLeft = distanceLeft - distancePerStep; }
 
+string DriverVolunteer:: getMyType() const {
+    return "driver";
+}
+
 string DriverVolunteer::toString() const {
     string s = "volunteerID:" + getId();
     string m = ",ActiveOrder:" + getActiveOrderId();
@@ -142,7 +153,7 @@ string DriverVolunteer::toString() const {
 
 void DriverVolunteer::setDistance(int distance) { distanceLeft = distance; }
 
-// LimitedDriverVolunteer: DriverVolunteer {
+// =========================LimitedDriverVolunteer====================
 
 LimitedDriverVolunteer::LimitedDriverVolunteer(int id, const string &name,
                                                int maxDistance,
@@ -172,7 +183,9 @@ void LimitedDriverVolunteer::acceptOrder(const Order &order) {
         ordersLeft--;
     }
 }
-
+string LimitedDriverVolunteer:: getMyType() const {
+    return "LimitedDriver";
+}
 string LimitedDriverVolunteer::toString() const {
     string s = "volunteerID:" + getId();
     string m = ",ActiveOrder:" + getActiveOrderId();

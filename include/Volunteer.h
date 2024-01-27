@@ -20,7 +20,7 @@ class Volunteer {
         virtual void acceptOrder(const Order &order) = 0; // Prepare for new order(Reset activeOrderId,TimeLeft,DistanceLeft,OrdersLeft depends on the volunteer type)
                 
         virtual void step() = 0; //Simulate volunteer step,if the volunteer finished the order, transfer activeOrderId to completedOrderId
-
+        virtual string getMyType() const =0 ;
         virtual string toString() const = 0;
         virtual Volunteer* clone() const = 0; //Return a copy of the volunteer
 
@@ -31,6 +31,7 @@ class Volunteer {
     private:
         const int id;
         const string name;
+        const string type;
 
 };
 
@@ -47,6 +48,7 @@ class CollectorVolunteer: public Volunteer {
         bool canTakeOrder(const Order &order) const override;
         void acceptOrder(const Order &order) override;
         string toString() const override;
+        virtual string getMyType() const override;
         void resetTimeLeft ();
     
     private:
@@ -65,6 +67,7 @@ class LimitedCollectorVolunteer: public CollectorVolunteer {
 
         int getMaxOrders() const;
         int getNumOrdersLeft() const;
+        string getMyType() const override;
         string toString() const override;
     
     private:
@@ -87,6 +90,7 @@ class DriverVolunteer: public Volunteer {
         void acceptOrder(const Order &order) override; // Assign distanceLeft to order's distance
         void step() override; // Decrease distanceLeft by distancePerStep
         string toString() const override;
+        string getMyType() const override;
         void setDistance(int distance);
 
     private:
@@ -105,6 +109,7 @@ class LimitedDriverVolunteer: public DriverVolunteer {
         bool hasOrdersLeft() const override;
         bool canTakeOrder(const Order &order) const override; // Signal if the volunteer is not busy, the order is within the maxDistance.
         void acceptOrder(const Order &order) override; // Assign distanceLeft to order's distance and decrease ordersLeft
+        string getMyType() const override;
         string toString() const override;
 
     private:

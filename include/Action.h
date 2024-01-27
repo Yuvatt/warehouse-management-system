@@ -32,7 +32,7 @@ class BaseAction{
         ActionStatus status;
 };
 
-class SimulateStep : public BaseAction {
+class SimulateStep : public BaseAction { //todo
 
     public:
         SimulateStep(int numOfSteps);
@@ -53,7 +53,7 @@ class AddOrder : public BaseAction {
     
     private:
         const int customerId;
-        int orderCounter;
+        
 };
 
 
@@ -70,7 +70,7 @@ class AddCustomer : public BaseAction {
         const CustomerType customerType;
         const int distance;
         const int maxOrders;
-        int customerCounter;
+        
 };
 
 
@@ -96,7 +96,7 @@ class PrintCustomerStatus: public BaseAction {
 };
 
 
-class PrintVolunteerStatus : public BaseAction {
+class PrintVolunteerStatus : public BaseAction { //todo
     public:
         PrintVolunteerStatus(int id);
         void act(WareHouse &wareHouse) override;
@@ -107,7 +107,7 @@ class PrintVolunteerStatus : public BaseAction {
 };
 
 
-class PrintActionsLog : public BaseAction {
+class PrintActionsLog : public BaseAction { //todo
     public:
         PrintActionsLog();
         void act(WareHouse &wareHouse) override;
@@ -116,7 +116,7 @@ class PrintActionsLog : public BaseAction {
     private:
 };
 
-class Close : public BaseAction {
+class Close : public BaseAction { //todo
     public:
         Close();
         void act(WareHouse &wareHouse) override;
@@ -125,7 +125,7 @@ class Close : public BaseAction {
     private:
 };
 
-class BackupWareHouse : public BaseAction {
+class BackupWareHouse : public BaseAction { //todo
     public:
         BackupWareHouse();
         void act(WareHouse &wareHouse) override;
@@ -135,7 +135,7 @@ class BackupWareHouse : public BaseAction {
 };
 
 
-class RestoreWareHouse : public BaseAction {
+class RestoreWareHouse : public BaseAction { //todo
     public:
         RestoreWareHouse();
         void act(WareHouse &wareHouse) override;

@@ -8,7 +8,7 @@ class BaseAction;
 class Volunteer;
 
 // Warehouse responsible for Volunteers, Customers Actions, and Orders.
-
+int stringToInt(const std::string& str);
 
 class WareHouse {
 
@@ -22,10 +22,18 @@ class WareHouse {
         Volunteer &getVolunteer(int volunteerId) const;
         Order &getOrder(int orderId) const;
         const vector<BaseAction*> &getActions() const;
+
+        bool isVolunteerExist(int volunteerId) const;
+        bool isCustomerExist(int customerId) const; 
+        int getOrderCounter() const;
+        int getVolunteerCounter() const;
+        int getCustomerCounter() const;
+
         void close();
         void open();
-        bool isExist(int customerId) const; 
+        
         void parseText(const string &configFilePath);
+        void printCustomers();
 
     private:
         bool isOpen;
@@ -37,5 +45,5 @@ class WareHouse {
         vector<Customer*> customers;
         int customerCounter; //For assigning unique customer IDs
         int volunteerCounter; //For assigning unique volunteer IDs
-
+        int orderCounter;
 };

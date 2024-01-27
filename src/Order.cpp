@@ -7,11 +7,11 @@
 using std::string;
 using std::vector;
 
-#define NO_VOLUNTEER -1;
+#define NO_VOLUNTEER = -1;
 
 Order::Order(int id, int customerId, int distance)
     : id(id), customerId(customerId), distance(distance),
-      status(OrderStatus::PENDING) {}
+      status(OrderStatus::PENDING), driverId(-1), collectorId(-1) {}
 
 int Order::getId() const { return id; }
 
