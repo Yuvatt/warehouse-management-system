@@ -55,11 +55,29 @@ void WareHouse::start() {
                 PrintOrderStatus print(number);
                 print.act(*this);
             }
-        } else if (action == "volunteerStatus") {}
-        else if (action == "customerStatus") {}
-        else if (action == "step") {}
-        else if (action == "log") {}
+        } else if (action == "volunteerStatus") {
+                if(!isVolunteerExist(number))
+                    std::cout << "Error: volunteer doesn't exist" << std::endl;
+                else{
+                    PrintVolunteerStatus print(number);
+                    print.act(*this);
+                }
+        }
+        else if (action == "customerStatus") {
+                if(!isCustomerExist(number))
+                    std::cout << "Error: customer doesn't exist" << std::endl;
+                else{
+                    PrintCustomerStatus print(number);
+                    print.act(*this);
+                }
+        }
+        else if (action == "step") {} // todo
         
+        else if (action == "log") {
+            for(BaseAction *action : actionsLog){
+               std::cout << action->toString() << std::endl; 
+            }
+        }
     }
 }
 
@@ -150,6 +168,24 @@ void WareHouse::start() {
     int WareHouse::getCustomerCounter() const{
         return customerCounter;
     }
+
+    vector<Order*> WareHouse::getVectorOrders(string nameOfVector) const {
+        if(nameOfVector == "pendingOrders")
+            return pendingOrders;
+        else if(nameOfVector == "inProcessOrders")
+            return inProcessOrders;
+        else
+            return completedOrders;
+    }
+
+        vector<Volunteer*> WareHouse::getVectorVolunteers() const {
+            return volunteers;
+    }
+
+        vector<Customer*> WareHouse::getVectorCustomers() const {
+            return customers;
+    }
+
 
     bool WareHouse::isCustomerExist(int customerId) const {
         for (Customer *c : customers) {

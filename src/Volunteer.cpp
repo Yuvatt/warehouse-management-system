@@ -34,7 +34,9 @@ CollectorVolunteer *CollectorVolunteer::clone() const {
 void CollectorVolunteer::step() { timeLeft--; }
 
 int CollectorVolunteer::getCoolDown() const { return coolDown; }
+
 int CollectorVolunteer::getTimeLeft() const { return timeLeft; }
+
 bool CollectorVolunteer::decreaseCoolDown() {
     timeLeft--;
     return (timeLeft == 0);
@@ -76,6 +78,7 @@ LimitedCollectorVolunteer *LimitedCollectorVolunteer::clone() const {
 }
 
 bool LimitedCollectorVolunteer::hasOrdersLeft() const { return ordersLeft > 0; }
+
 bool LimitedCollectorVolunteer::canTakeOrder(const Order &order) const {
     return (!isBusy() && hasOrdersLeft() &&
             order.getStatus() == OrderStatus::PENDING);

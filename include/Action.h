@@ -19,7 +19,7 @@ class BaseAction{
         BaseAction();
         ActionStatus getStatus() const;
         virtual void act(WareHouse& wareHouse)=0;
-        virtual string toString() const=0;
+        virtual string toString() const=0; //to do?????
         virtual BaseAction* clone() const=0;
 
     protected:
@@ -39,6 +39,9 @@ class SimulateStep : public BaseAction { //todo
         void act(WareHouse &wareHouse) override;
         std::string toString() const override;
         SimulateStep *clone() const override;
+
+        // void updateToCollector(WareHouse &wareHouse);
+        // void updateToDriver(WareHouse &wareHouse);
 
     private:
         const int numOfSteps;

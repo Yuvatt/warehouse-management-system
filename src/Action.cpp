@@ -27,7 +27,33 @@ void BaseAction::error(string errorMsg) {
 
 string BaseAction::getErrorMsg() const { return errorMsg; }
 
-// AddOrder
+// ===================================SimulateStep=============================================
+
+SimulateStep::SimulateStep(int numOfSteps): numOfSteps(numOfSteps) {} 
+
+void SimulateStep::act(WareHouse &wareHouse) {
+    for (Order *pending : wareHouse.getVectorOrders("pendingOrders")) {
+           // if (*pending.getStatusString() == "Pending")  ///////// first step
+           // else if (*pending->getStatusString == "Collecting")
+           // else         
+        }
+
+    for(Volunteer *v : wareHouse.getVectorVolunteers()){ 
+        v->step(); 
+        // if()
+    }
+
+};
+
+string SimulateStep::toString() const {};
+
+SimulateStep *SimulateStep::clone() const {
+    return new SimulateStep(*this);
+};
+
+
+
+// ===================================AddOrder=================================================
 
 AddOrder::AddOrder(int id) : customerId(id) {}
 
@@ -139,9 +165,9 @@ PrintCustomerStatus *PrintCustomerStatus::clone() const {}
 
 PrintVolunteerStatus::PrintVolunteerStatus(int id): volunteerId(id) {}
 void PrintVolunteerStatus::act(WareHouse &wareHouse){
+
     if(!wareHouse.isVolunteerExist(volunteerId))
-        std::cout << "Volunteer Doesnt Exist" << std::endl;
-    
+        std::cout << "Volunteer Doesn't Exist" << std::endl;
     else{
     Volunteer* volunteer = wareHouse.getVolunteer(volunteerId).clone();
     string type = volunteer->getMyType();
@@ -168,4 +194,4 @@ string PrintVolunteerStatus:: toString() const {}
         // }
         // BackupWareHouse* BackupWareHouse::clone() const;
         // string BackupWareHouse::toString() const;
-``
+

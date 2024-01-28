@@ -28,6 +28,9 @@ class WareHouse {
         int getOrderCounter() const;
         int getVolunteerCounter() const;
         int getCustomerCounter() const;
+        vector<Order*> getVectorOrders(string nameOfVector) const;
+        vector<Volunteer*> getVectorVolunteers() const;
+        vector<Customer*> getVectorCustomers() const;
 
         void close();
         void open();
