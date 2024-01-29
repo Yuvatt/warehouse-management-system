@@ -24,13 +24,16 @@ class WareHouse {
         const vector<BaseAction*> &getActions() const;
 
         bool isVolunteerExist(int volunteerId) const;
-        bool isCustomerExist(int customerId) const; 
+        bool isCustomerExist(int customerId) const;
+        bool isOrderExist (int orderId) const; 
         int getOrderCounter() const;
         int getVolunteerCounter() const;
         int getCustomerCounter() const;
         vector<Order*> getVectorOrders(string nameOfVector) const;
         vector<Volunteer*> getVectorVolunteers() const;
         vector<Customer*> getVectorCustomers() const;
+        void addToVector (string nameOfVector, Order *order);
+        void removeFromVector (string nameOfVector, Order *order);
 
         void close();
         void open();

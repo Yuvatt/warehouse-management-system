@@ -40,8 +40,8 @@ class SimulateStep : public BaseAction { //todo
         std::string toString() const override;
         SimulateStep *clone() const override;
 
-        // void updateToCollector(WareHouse &wareHouse);
-        // void updateToDriver(WareHouse &wareHouse);
+        void findCollector(WareHouse &wareHouse, Order *order);
+        void findDriver(WareHouse &wareHouse, Order *order);
 
     private:
         const int numOfSteps;
@@ -75,8 +75,6 @@ class AddCustomer : public BaseAction {
         const int maxOrders;
         
 };
-
-
 
 class PrintOrderStatus : public BaseAction {
     public:

@@ -10,7 +10,7 @@ using std::vector;
 /// Volunteer
 
 Volunteer::Volunteer(int id, const string &name)
-    : id(id), name(name), completedOrderId(NO_ORDER), activeOrderId(NO_ORDER){};
+    : id(id), name(name), completedOrderId(NO_ORDER), activeOrderId(NO_ORDER), type(""){};
 
 int Volunteer::getId() const { return id; }
 
@@ -22,16 +22,24 @@ int Volunteer::getCompletedOrderId() const { return completedOrderId; }
 
 bool Volunteer::isBusy() const { return (activeOrderId != NO_ORDER); }
 
-//============= CollectorVolunteer: Volunteer =============================================
+void Volunteer::resetActiveOrderId() { activeOrderId = NO_ORDER; }
+
+//============= CollectorVolunteer: Volunteer
+//=============================================
 
 CollectorVolunteer::CollectorVolunteer(int id, const string &name, int coolDown)
-    : Volunteer(id, name), coolDown(coolDown) {}
+    : Volunteer(id, name), coolDown(coolDown){};
 
 CollectorVolunteer *CollectorVolunteer::clone() const {
     return new CollectorVolunteer(*this);
 }
 
-void CollectorVolunteer::step() { timeLeft--; }
+void CollectorVolunteer::step() {
+    timeLeft--;
+    if (timeLeft == 0) {
+        completedOrderId = activeOrderId;
+    }
+}
 
 int CollectorVolunteer::getCoolDown() const { return coolDown; }
 
@@ -50,13 +58,11 @@ bool CollectorVolunteer::canTakeOrder(const Order &order) const {
 
 void CollectorVolunteer::acceptOrder(const Order &order) {
     if (canTakeOrder(order)) {
-        int activeOrderId = order.getId();
+        activeOrderId = order.getId();
         timeLeft = coolDown;
     }
 }
-string CollectorVolunteer:: getMyType() const {
-    return "collector";
-}
+string CollectorVolunteer::getMyType() const { return "collector"; }
 
 string CollectorVolunteer::toString() const {
     string s = "volunteerID:" + getId();
@@ -71,7 +77,7 @@ void CollectorVolunteer::resetTimeLeft() { timeLeft = coolDown; }
 LimitedCollectorVolunteer::LimitedCollectorVolunteer(int id, const string &name,
                                                      int coolDown,
                                                      int maxOrders)
-    : CollectorVolunteer(id, name, coolDown), maxOrders(maxOrders) {}
+    : CollectorVolunteer(id, name, coolDown), maxOrders(maxOrders), ordersLeft(maxOrders) {}
 
 LimitedCollectorVolunteer *LimitedCollectorVolunteer::clone() const {
     return new LimitedCollectorVolunteer(*this);
@@ -86,7 +92,7 @@ bool LimitedCollectorVolunteer::canTakeOrder(const Order &order) const {
 
 void LimitedCollectorVolunteer::acceptOrder(const Order &order) {
     if (canTakeOrder(order)) {
-        int activeOrderId = order.getId();
+        activeOrderId = order.getId();
         resetTimeLeft();
         ordersLeft--;
     }
@@ -96,7 +102,7 @@ int LimitedCollectorVolunteer::getMaxOrders() const { return maxOrders; }
 
 int LimitedCollectorVolunteer::getNumOrdersLeft() const { return ordersLeft; }
 
-string LimitedCollectorVolunteer:: getMyType() const {
+string LimitedCollectorVolunteer::getMyType() const {
     return "limitedCollector";
 }
 
@@ -106,7 +112,8 @@ string LimitedCollectorVolunteer::toString() const {
     return s + m;
 }
 
-//  ===========================DriverVolunteer =============================================
+//  ===========================DriverVolunteer
+//  =============================================
 
 DriverVolunteer::DriverVolunteer(int id, const string &name, int maxDistance,
                                  int distancePerStep)
@@ -137,16 +144,22 @@ bool DriverVolunteer::canTakeOrder(const Order &order) const {
 
 void DriverVolunteer::acceptOrder(const Order &order) {
     if (canTakeOrder(order)) {
-        int activeOrderId = order.getId();
+        activeOrderId = order.getId();
         distanceLeft = maxDistance;
     }
 }
 
-void DriverVolunteer::step() { distanceLeft = distanceLeft - distancePerStep; }
-
-string DriverVolunteer:: getMyType() const {
-    return "driver";
+void DriverVolunteer::step() {
+    if(activeOrderId != -1){
+    distanceLeft = distanceLeft - distancePerStep;
+    if (distanceLeft <= 0) {
+        distanceLeft = 0;
+        completedOrderId = activeOrderId;
+    }
+    }
 }
+
+string DriverVolunteer::getMyType() const { return "driver"; }
 
 string DriverVolunteer::toString() const {
     string s = "volunteerID:" + getId();
@@ -163,7 +176,7 @@ LimitedDriverVolunteer::LimitedDriverVolunteer(int id, const string &name,
                                                int distancePerStep,
                                                int maxOrders)
     : DriverVolunteer(id, name, maxDistance, distancePerStep),
-      maxOrders(maxOrders) {}
+      maxOrders(maxOrders), ordersLeft(maxOrders) {}
 
 LimitedDriverVolunteer *LimitedDriverVolunteer::clone() const {
     LimitedDriverVolunteer(*this);
@@ -181,14 +194,12 @@ bool LimitedDriverVolunteer::canTakeOrder(const Order &order) const {
 
 void LimitedDriverVolunteer::acceptOrder(const Order &order) {
     if (canTakeOrder(order)) {
-        int activeOrderId = order.getId();
+        activeOrderId = order.getId();
         setDistance(order.getDistance()); // set distance left
         ordersLeft--;
     }
 }
-string LimitedDriverVolunteer:: getMyType() const {
-    return "LimitedDriver";
-}
+string LimitedDriverVolunteer::getMyType() const { return "LimitedDriver"; }
 string LimitedDriverVolunteer::toString() const {
     string s = "volunteerID:" + getId();
     string m = ",ActiveOrder:" + getActiveOrderId();

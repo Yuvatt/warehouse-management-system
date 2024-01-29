@@ -42,11 +42,7 @@ const string Order::getStatusString() const {
 int Order::getDistance() const { return distance; }
 
 const string Order::toString() const {
-    return "OrderId:" + std::to_string(id) + "/n" +
-           "OrderStatus:" + getStatusString() + "/n" +
-           "CustomerId:" + std::to_string(customerId) + "/n" +
-           "Collector:" + std::to_string(collectorId) + "/n" +
-           "Driver:" + std::to_string(driverId);
+    return "OrderID: " + std::to_string(id);
 }
 
 // if the order is not null
