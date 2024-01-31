@@ -9,7 +9,6 @@ class Volunteer;
 
 // Warehouse responsible for Volunteers, Customers Actions, and Orders.
 int stringToInt(const std::string& str);
-extern WareHouse* backup;
 
 
 class WareHouse {
@@ -31,12 +30,14 @@ class WareHouse {
         int getVolunteerCounter() const;
         int getCustomerCounter() const;
         vector<Order*> getVectorOrders(string nameOfVector) const;
-        vector<Volunteer*> getVectorVolunteers() const;
+        vector<Volunteer*> getVectorVolunteers();
         vector<Customer*> getVectorCustomers() const;
         const vector<BaseAction*> &getActions() const;
 
-        void addToVector (string nameOfVector, Order *order);
-        void removeFromVector (string nameOfVector, Order *order);
+        void findCollector(Order *order);
+        void findDriver(Order *order);
+        void addToVector (string nameOfVector, Order &order);
+        void removeFromVector (string nameOfVector, Order &order);
 
         void backUp();
         void restore();

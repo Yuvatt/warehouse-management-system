@@ -44,8 +44,6 @@ class SimulateStep : public BaseAction { //todo
         std::string toString() const override;
         SimulateStep *clone() const override;
 
-        void findCollector(WareHouse &wareHouse, Order *order);
-        void findDriver(WareHouse &wareHouse, Order *order);
         void deleteVolunteer(WareHouse &wareHouse, Volunteer *v);
 
     private:

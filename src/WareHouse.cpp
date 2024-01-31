@@ -141,35 +141,73 @@ vector<Order *> WareHouse::getVectorOrders(string nameOfVector) const {
     else
         return completedOrders;
 }
-vector<Volunteer *> WareHouse::getVectorVolunteers() const {
+vector<Volunteer *> WareHouse::getVectorVolunteers() {
     return volunteers;
 }
 vector<Customer *> WareHouse::getVectorCustomers() const { return customers; }
 
 const vector<BaseAction *> &WareHouse::getActions() const { return actionsLog; }
+void WareHouse:: findCollector(Order *order){
+    bool found = false;
+    std::vector<Volunteer *>::iterator it; 
+    for (it = volunteers.begin(); it != volunteers.end() && !found; it++) {
+        Volunteer *v = (*it);
 
-void WareHouse::addToVector(string nameOfVector, Order *order) {
-    if (nameOfVector == "pendingOrders")
-        pendingOrders.push_back(order);
-    else if (nameOfVector == "inProcessOrders")
-        inProcessOrders.push_back(order);
-    else
-        completedOrders.push_back(order);
+        if (v->getMyType() == "collector" ||
+            v->getMyType() == "limitedCollector") {
+            if (v->canTakeOrder(*order)) {
+                v->acceptOrder(*order);
+                order->setCollectorId(v->getId());
+                inProcessOrders.push_back(order);
+                removeFromVector("pendingOrders", *order);
+                order->setStatus(OrderStatus::COLLECTING);
+                found = true;
+            }
+        }
+    }
 }
-void WareHouse::removeFromVector(string nameOfVector, Order *order) {
+void WareHouse:: findDriver (Order *order){
+    bool found = false;
+    std::vector<Volunteer *>::iterator it;
+    for (it = volunteers.begin();
+         it != volunteers.end() && !found; it++) {
+        Volunteer *v = (*it);
+        if (v->getMyType() == "driver" || v->getMyType() == "limitedDriver") {
+            if (v->canTakeOrder(*order)) {
+                v->acceptOrder(*order);
+                order->setDriverId(v->getId());
+                inProcessOrders.push_back(order);
+                // wareHouse.getVectorOrders("pendingOrders").erase(order);
+                order->setStatus(OrderStatus::DELIVERING);
+                found = true;
+            }
+        }
+    }
+}
+
+void WareHouse::addToVector(string nameOfVector, Order &order) {
+    if (nameOfVector == "pendingOrders")
+        pendingOrders.push_back(&order);
+    else if (nameOfVector == "inProcessOrders")
+        inProcessOrders.push_back(&order);
+    else
+        completedOrders.push_back(&order);
+}
+void WareHouse::removeFromVector(string nameOfVector, Order &order) {
     if (nameOfVector == "pendingOrders") {
         std::vector<Order *>::iterator it = pendingOrders.begin();
-        while (it != pendingOrders.end()) {
-            if ((*it)->getId() == order->getId())
+        while (it != pendingOrders.end()) { 
+            if ((*it)->getId() == order.getId())
                 pendingOrders.erase(it);
-            it++;
+            else
+                ++it;
         }
     }
 
     else if (nameOfVector == "inProcessOrders")
-        inProcessOrders.push_back(order);
+        inProcessOrders.push_back(&order);
     else
-        completedOrders.push_back(order);
+        completedOrders.push_back(&order);
 }
 
 bool WareHouse::isCustomerExist(int customerId) const {
