@@ -20,7 +20,7 @@ class BaseAction{
         BaseAction();
         ActionStatus getStatus() const;
         virtual void act(WareHouse& wareHouse)=0;
-        virtual string toString() const=0; //to do?????
+        virtual string toString() const=0;
         virtual BaseAction* clone() const=0;
 
         virtual ~BaseAction(); 
@@ -36,7 +36,7 @@ class BaseAction{
         ActionStatus status;
 };
 
-class SimulateStep : public BaseAction { //todo
+class SimulateStep : public BaseAction { 
 
     public:
         SimulateStep(int numOfSteps);
@@ -100,7 +100,7 @@ class PrintCustomerStatus: public BaseAction {
 };
 
 
-class PrintVolunteerStatus : public BaseAction { //todo
+class PrintVolunteerStatus : public BaseAction { 
     public:
         PrintVolunteerStatus(int id);
         void act(WareHouse &wareHouse) override;

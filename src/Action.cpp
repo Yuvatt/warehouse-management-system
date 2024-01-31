@@ -105,7 +105,10 @@ void SimulateStep::act(WareHouse &wareHouse) {
 //     //destructor
 // };
 
-SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); };
+SimulateStep *SimulateStep::clone() const { 
+    return new SimulateStep(*this);
+};
+
 string SimulateStep::toString() const {
     if (getStatus() == ActionStatus::ERROR)
         return "customerStatus " + std::to_string(numOfSteps) + "Error";

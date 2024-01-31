@@ -172,12 +172,13 @@ void WareHouse:: findDriver (Order *order){
     for (it = volunteers.begin();
          it != volunteers.end() && !found; it++) {
         Volunteer *v = (*it);
+
         if (v->getMyType() == "driver" || v->getMyType() == "limitedDriver") {
             if (v->canTakeOrder(*order)) {
                 v->acceptOrder(*order);
                 order->setDriverId(v->getId());
                 inProcessOrders.push_back(order);
-                // wareHouse.getVectorOrders("pendingOrders").erase(order);
+                removeFromVector("pendingOrders", *order);
                 order->setStatus(OrderStatus::DELIVERING);
                 found = true;
             }
@@ -204,10 +205,15 @@ void WareHouse::removeFromVector(string nameOfVector, Order &order) {
         }
     }
 
-    else if (nameOfVector == "inProcessOrders")
-        inProcessOrders.push_back(&order);
-    else
-        completedOrders.push_back(&order);
+    else if (nameOfVector == "inProcessOrders") {
+        std::vector<Order *>::iterator it = inProcessOrders.begin();
+        while (it != inProcessOrders.end()) { 
+            if ((*it)->getId() == order.getId())
+                inProcessOrders.erase(it);
+            else
+                ++it;
+        }
+    }
 }
 
 bool WareHouse::isCustomerExist(int customerId) const {
