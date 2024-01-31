@@ -1,5 +1,3 @@
-#pragma once
-
 #include "../include/Order.h"
 #include <string>
 #include <vector>
@@ -7,11 +5,11 @@
 using std::string;
 using std::vector;
 
-#define NO_VOLUNTEER = -1;
+#define NO_VOLUNTEER -1
 
 Order::Order(int id, int customerId, int distance)
     : id(id), customerId(customerId), distance(distance),
-      status(OrderStatus::PENDING), driverId(-1), collectorId(-1) {}
+      status(OrderStatus::PENDING), collectorId(NO_VOLUNTEER), driverId(NO_VOLUNTEER) {}
 
 int Order::getId() const { return id; }
 
@@ -27,22 +25,22 @@ int Order::getCollectorId() const { return collectorId; }
 int Order::getDriverId() const { return driverId; }
 
 OrderStatus Order::getStatus() const { return status; }
+
 // return the Order status in string
 const string Order::getStatusString() const {
     if (status == OrderStatus::COLLECTING)
         return "Collecting";
-    if (status == OrderStatus::DELIVERING)
+    else if (status == OrderStatus::DELIVERING)
         return "Delivering";
-    if (status == OrderStatus::PENDING)
+    else if (status == OrderStatus::PENDING)
         return "Pending";
-    if (status == OrderStatus::COMPLETED)
-        return "Completed";
+    return "Completed";
 }
 
 int Order::getDistance() const { return distance; }
 
 const string Order::toString() const {
-    return "OrderID: " + std::to_string(id);
+    return "OrderID: " + std::to_string(id) + ",customerID:" + std::to_string(customerId) + ",Status:" + getStatusString();
 }
 
 // if the order is not null

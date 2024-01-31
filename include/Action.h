@@ -22,6 +22,9 @@ class BaseAction{
         virtual string toString() const=0; //to do?????
         virtual BaseAction* clone() const=0;
 
+        virtual ~BaseAction(); 
+
+
     protected:
         void complete();
         void error(string errorMsg);
@@ -42,6 +45,7 @@ class SimulateStep : public BaseAction { //todo
 
         void findCollector(WareHouse &wareHouse, Order *order);
         void findDriver(WareHouse &wareHouse, Order *order);
+        void deleteVolunteer(WareHouse &wareHouse, Volunteer *v);
 
     private:
         const int numOfSteps;
@@ -108,7 +112,7 @@ class PrintVolunteerStatus : public BaseAction { //todo
 };
 
 
-class PrintActionsLog : public BaseAction { //todo
+class PrintActionsLog : public BaseAction { 
     public:
         PrintActionsLog();
         void act(WareHouse &wareHouse) override;
@@ -117,7 +121,7 @@ class PrintActionsLog : public BaseAction { //todo
     private:
 };
 
-class Close : public BaseAction { //todo
+class Close : public BaseAction { 
     public:
         Close();
         void act(WareHouse &wareHouse) override;
@@ -126,7 +130,7 @@ class Close : public BaseAction { //todo
     private:
 };
 
-class BackupWareHouse : public BaseAction { //todo
+class BackupWareHouse : public BaseAction { 
     public:
         BackupWareHouse();
         void act(WareHouse &wareHouse) override;
@@ -136,7 +140,7 @@ class BackupWareHouse : public BaseAction { //todo
 };
 
 
-class RestoreWareHouse : public BaseAction { //todo
+class RestoreWareHouse : public BaseAction { 
     public:
         RestoreWareHouse();
         void act(WareHouse &wareHouse) override;

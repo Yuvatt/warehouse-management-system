@@ -1,5 +1,3 @@
-#pragma once
-
 #include <fstream>
 #include <iostream>
 #include <istream>
@@ -11,15 +9,16 @@
 #include "../include/Order.h"
 #include "../include/Volunteer.h"
 #include "../include/WareHouse.h"
+#include "main.cpp"
+
 
 using namespace std;
 using std::string;
 using std::vector;
 
-WareHouse::WareHouse(const string &configFilePath)
-    : isOpen(false), customerCounter(0), orderCounter(0), volunteerCounter(0),
-      actionsLog(), volunteers(), pendingOrders(), inProcessOrders(),
-      completedOrders(), customers() {
+WareHouse::WareHouse(const string &configFilePath) 
+    : isOpen(false), actionsLog(), volunteers(), pendingOrders(), inProcessOrders(), completedOrders(), 
+     customers(), customerCounter(0), volunteerCounter(0), orderCounter(0){
     parseText(configFilePath);
 }
 
@@ -39,71 +38,56 @@ void WareHouse::start() {
         ss >> num;
         int number = stringToInt(num);
         if (action == "close") {
-            isOpen = false; //
-        } else if (action == "order") {
-            if (!isCustomerExist(number))
-                std::cout << "There is no customer with customerID=" + num
-                          << std::endl;
-            else {
-                AddOrder order(number);
-                order.act(*this);
-                std::cout << "COMPLETED" << std::endl;
-            }
-        } else if (action == "orderStatus") {
-            Order order = getOrder(number);
-            if (!order.isValid())
-                std::cout << "Error: order doesn't exist" << std::endl;
-            else {
-                PrintOrderStatus print(number);
-                print.act(*this);
-            }
-        } else if (action == "volunteerStatus") {
-            if (!isVolunteerExist(number))
-                std::cout << "Error: volunteer doesn't exist" << std::endl;
-            else {
-                PrintVolunteerStatus print(number);
-                print.act(*this);
-            }
-        } else if (action == "customerStatus") {
-            if (!isCustomerExist(number))
-                std::cout << "Error: customer doesn't exist" << std::endl;
-            else {
-                PrintCustomerStatus print(number);
-                print.act(*this);
-            }
+            Close* close = new Close();
+            close->act(*this);
+            addAction(close);
+        }        
+
+        else if (action == "order") {
+            AddOrder order(number);
+            order.act(*this);
+            addAction(&order);
+        } 
+        
+        else if (action == "orderStatus") {
+            PrintOrderStatus print(number);
+            print.act(*this);
+            addAction(&print);
+        }
+
+        else if (action == "volunteerStatus") {
+            PrintVolunteerStatus print(number);
+            print.act(*this);
+            addAction(&print);
+        }
+
+        else if (action == "customerStatus") {
+            PrintCustomerStatus print(number);
+            print.act(*this);
+            addAction(&print);
+
+
         } else if (action == "step") {
             int numberOfSteps = stringToInt(num);
             SimulateStep step(numberOfSteps);
             step.act(*this);
+            addAction(&step);
         }
 
         else if (action == "log") {
-            for (BaseAction *action : actionsLog) {
-                std::cout << action->toString() << std::endl;
-            }
+            PrintActionsLog *print = new PrintActionsLog();
+            print->act(*this);   
+            addAction(print);
         }
     }
 }
 
 void WareHouse::addOrder(Order *order) {
-    int cId = order->getCustomerId(); // customer id
-    bool found = false;
-    for (Customer *c : customers) {
-        if (c->getId() == cId) {
-            found = true;
-            if (!c->canMakeOrder()) {
-                cout << "Cannot Place This Order" << endl;
-            } else {
-                pendingOrders.push_back(order);
-                c->addOrder(order->getId());
-                orderCounter++;
-            }
-        }
-    }
-    if (!found)
-        cout << "there is no customer with an orderId=" + std::to_string(cId)
-             << endl;
+    pendingOrders.push_back(order);
+    orderCounter++;
 }
+    
+ 
 void WareHouse::addAction(BaseAction *action) { actionsLog.push_back(action); }
 void WareHouse::AddCustomer(Customer *customer) {
     customers.push_back(customer);
@@ -116,14 +100,20 @@ Customer &WareHouse::getCustomer(int customerId) const {
             return *c;
         }
     }
+    SoldierCustomer *noOne = new SoldierCustomer(-1, "No Customer", -1, -1);
+    return *noOne;
 }
+
 Volunteer &WareHouse::getVolunteer(int volunteerId) const {
     for (Volunteer *v : volunteers) {
         if (v->getId() == volunteerId) {
             return *v;
         }
     }
+    CollectorVolunteer *noOne = new CollectorVolunteer(-1, "No Volunteer", -1);
+    return *noOne; 
 }
+
 Order &WareHouse::getOrder(int orderId) const {
     Order *order = nullptr;
     for (Order *o : pendingOrders) {
@@ -156,6 +146,7 @@ vector<Volunteer *> WareHouse::getVectorVolunteers() const {
     return volunteers;
 }
 vector<Customer *> WareHouse::getVectorCustomers() const { return customers; }
+
 const vector<BaseAction *> &WareHouse::getActions() const { return actionsLog; }
 
 void WareHouse::addToVector(string nameOfVector, Order *order) {
@@ -214,6 +205,18 @@ bool WareHouse::isOrderExist(int orderId) const {
     return false;
 }
 
+void WareHouse::backUp() {
+    if(backup == nullptr)
+        backup = new WareHouse(*this);
+    else
+        *backup = *this;
+}
+
+void WareHouse::restore(){
+    *this = *backup;
+}
+
+
 void WareHouse::close() {
 
     for (Order *o : pendingOrders) {
@@ -225,8 +228,10 @@ void WareHouse::close() {
     for (Order *o : completedOrders) {
         std::cout << o->toString() << std::endl;
     }
+
     isOpen = false;
 }
+
 void WareHouse::open() {
     isOpen = true;
     std::cout << "WAREHOUSE IS OPEN!" << std::endl;
@@ -335,3 +340,4 @@ int stringToInt(const std::string &str) {
 
     return result;
 }
+

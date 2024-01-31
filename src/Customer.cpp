@@ -1,4 +1,3 @@
-#pragma once
 #include "../include/Customer.h"
 #include <vector>
 
@@ -10,13 +9,16 @@ using std::vector;
 Customer::Customer(int id, const string &name, int locationDistance,
                    int maxOrders)
     : id(id), name(name), locationDistance(locationDistance),
-      maxOrders(maxOrders) {}
+      maxOrders(maxOrders), ordersId() {}
 const string &Customer::getName() const { return name; }
 int Customer::getId() const { return id; }
 int Customer::getCustomerDistance() const { return locationDistance; }
 int Customer::getMaxOrders() const { return maxOrders; }
 int Customer::getNumOrders() const { return ordersId.size(); }
-bool Customer::canMakeOrder() const { return (ordersId.size() < maxOrders); }
+bool Customer::canMakeOrder() const { 
+    int size = ordersId.size();
+    return (size < maxOrders);
+}
 vector<int> const &Customer::getOrdersIds() const { return ordersId; }
 int Customer::addOrder(int orderId) {
     if (!canMakeOrder()) {
@@ -25,6 +27,9 @@ int Customer::addOrder(int orderId) {
     ordersId.push_back(orderId);
     return orderId;
 }
+
+Customer::~Customer() {}; //todo?
+
 
 // SoldierCustomer : Customer
 

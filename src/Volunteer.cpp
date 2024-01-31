@@ -1,4 +1,3 @@
-#pragma once
 #include "../include/Volunteer.h"
 #include "../include/Order.h"
 
@@ -10,7 +9,7 @@ using std::vector;
 /// Volunteer
 
 Volunteer::Volunteer(int id, const string &name)
-    : id(id), name(name), completedOrderId(NO_ORDER), activeOrderId(NO_ORDER), type(""){};
+    : completedOrderId(NO_ORDER), activeOrderId(NO_ORDER), type(""), id(id), name(name) {};
 
 int Volunteer::getId() const { return id; }
 
@@ -24,11 +23,15 @@ bool Volunteer::isBusy() const { return (activeOrderId != NO_ORDER); }
 
 void Volunteer::resetActiveOrderId() { activeOrderId = NO_ORDER; }
 
+
+Volunteer::~Volunteer() {}; //todo?
+
+
 //============= CollectorVolunteer: Volunteer
 //=============================================
 
 CollectorVolunteer::CollectorVolunteer(int id, const string &name, int coolDown)
-    : Volunteer(id, name), coolDown(coolDown){};
+    : Volunteer(id, name), coolDown(coolDown), timeLeft(coolDown){};
 
 CollectorVolunteer *CollectorVolunteer::clone() const {
     return new CollectorVolunteer(*this);
@@ -118,7 +121,7 @@ string LimitedCollectorVolunteer::toString() const {
 DriverVolunteer::DriverVolunteer(int id, const string &name, int maxDistance,
                                  int distancePerStep)
     : Volunteer(id, name), maxDistance(maxDistance),
-      distancePerStep(distancePerStep) {}
+      distancePerStep(distancePerStep), distanceLeft(NO_ORDER) {}
 
 DriverVolunteer *DriverVolunteer::clone() const {
     return new DriverVolunteer(*this);
@@ -179,7 +182,7 @@ LimitedDriverVolunteer::LimitedDriverVolunteer(int id, const string &name,
       maxOrders(maxOrders), ordersLeft(maxOrders) {}
 
 LimitedDriverVolunteer *LimitedDriverVolunteer::clone() const {
-    LimitedDriverVolunteer(*this);
+    return new LimitedDriverVolunteer(*this);
 }
 int LimitedDriverVolunteer::getMaxOrders() const { return maxOrders; }
 

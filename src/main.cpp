@@ -1,5 +1,5 @@
-#pragma once
 #include "../include/WareHouse.h"
+#include "../include/Action.h"
 #include <iostream>
 
 using namespace std;

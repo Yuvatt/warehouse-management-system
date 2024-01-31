@@ -21,7 +21,6 @@ class WareHouse {
         Customer &getCustomer(int customerId) const;
         Volunteer &getVolunteer(int volunteerId) const;
         Order &getOrder(int orderId) const;
-        const vector<BaseAction*> &getActions() const;
 
         bool isVolunteerExist(int volunteerId) const;
         bool isCustomerExist(int customerId) const;
@@ -32,14 +31,20 @@ class WareHouse {
         vector<Order*> getVectorOrders(string nameOfVector) const;
         vector<Volunteer*> getVectorVolunteers() const;
         vector<Customer*> getVectorCustomers() const;
+        const vector<BaseAction*> &getActions() const;
+
         void addToVector (string nameOfVector, Order *order);
         void removeFromVector (string nameOfVector, Order *order);
+
+        void backUp();
+        void restore();
 
         void close();
         void open();
         
         void parseText(const string &configFilePath);
         void printCustomers();
+  
 
     private:
         bool isOpen;
