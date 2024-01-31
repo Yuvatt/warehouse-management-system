@@ -7,7 +7,6 @@
 #include "../include/Order.h"
 #include "../include/Volunteer.h"
 #include "../include/WareHouse.h"
-#include "main.cpp"
 
 
 using std::string;
@@ -23,7 +22,7 @@ void BaseAction::complete() { status = ActionStatus::COMPLETED; }
 
 void BaseAction::error(string errorMsg) {
     status = ActionStatus::ERROR;
-    errorMsg = errorMsg;
+    this->errorMsg = errorMsg;
 }
 string BaseAction::getErrorMsg() const { return errorMsg; }
  
@@ -193,7 +192,7 @@ string SimulateStep::toString() const {
 AddOrder::AddOrder(int id) : customerId(id) {}
 void AddOrder::act(WareHouse &wareHouse) {
     if (!wareHouse.isCustomerExist(customerId) || !wareHouse.getCustomer(customerId).canMakeOrder()) {
-        error("cannot place this order");
+        error("Error: Cannot place this order");
         std:: cout << getErrorMsg() << std::endl; }
 
     else{
@@ -242,31 +241,32 @@ CustomerType AddCustomer::stringToType(const string &customerType) {
 
 PrintOrderStatus::PrintOrderStatus(int id) : orderId(id) {}
 void PrintOrderStatus::act(WareHouse &wareHouse) {
+    if(!wareHouse.isOrderExist(orderId)) {
+        error("ORDER DOESN'T EXIST"); 
+    }
+    else {
     Order order = wareHouse.getOrder(orderId);
-
-    if (!order.isValid() && !wareHouse.isOrderExist(orderId))
-        error("ORDER DOESN'T EXIST");
-
     string CustomerId = "" + std::to_string(order.getCustomerId());
     string status = order.getStatusString();
     string collectorId;
     string driverId;
 
     if (order.getDriverId() == NO_VOLUNTEER)
-        driverId = "NONE";
+        driverId = "None";
     else
         driverId = std::to_string(order.getDriverId());
 
     if (order.getCollectorId() == NO_VOLUNTEER)
-        collectorId = "NONE";
+        collectorId = "None";
     else
         collectorId = std::to_string(order.getCollectorId());
 
-    std::cout << order.toString() << std::endl;
-    std::cout << "OrderStatus:" + status << std::endl;
-    std::cout << "CustomerID:" + CustomerId << std::endl;
-    std::cout << "Collector:" + collectorId << std::endl;
-    std::cout << "Driver:" + driverId << std::endl;
+    std::cout << "OrderId: " + std::to_string(orderId) << std::endl;
+    std::cout << "OrderStatus: " + status << std::endl;
+    std::cout << "CustomerID: " + CustomerId << std::endl;
+    std::cout << "Collector: " + collectorId << std::endl;
+    std::cout << "Driver: " + driverId << std::endl;
+    }
 }
 PrintOrderStatus *PrintOrderStatus::clone() const {
     return new PrintOrderStatus(*this);

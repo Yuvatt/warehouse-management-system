@@ -13,6 +13,7 @@ enum class CustomerType{
     Soldier, Civilian
 };
 
+extern WareHouse* backup;
 
 class BaseAction{
     public:

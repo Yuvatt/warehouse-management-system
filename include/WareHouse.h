@@ -9,6 +9,8 @@ class Volunteer;
 
 // Warehouse responsible for Volunteers, Customers Actions, and Orders.
 int stringToInt(const std::string& str);
+extern WareHouse* backup;
+
 
 class WareHouse {
 
@@ -45,7 +47,6 @@ class WareHouse {
         void parseText(const string &configFilePath);
         void printCustomers();
   
-
     private:
         bool isOpen;
         vector<BaseAction*> actionsLog;
