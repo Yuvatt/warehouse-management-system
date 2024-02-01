@@ -36,7 +36,7 @@ class WareHouse {
 
         void findCollector(Order *order);
         void findDriver(Order *order);
-        void addToVector (string nameOfVector, Order &order);
+        void addToVector (string nameOfVector, Order* order);
         void removeFromVector (string nameOfVector, Order &order);
 
         void backUp();

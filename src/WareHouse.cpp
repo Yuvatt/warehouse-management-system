@@ -186,13 +186,13 @@ void WareHouse:: findDriver (Order *order){
     }
 }
 
-void WareHouse::addToVector(string nameOfVector, Order &order) {
+void WareHouse::addToVector(string nameOfVector, Order* order) {
     if (nameOfVector == "pendingOrders")
-        pendingOrders.push_back(&order);
+        pendingOrders.push_back(order);
     else if (nameOfVector == "inProcessOrders")
-        inProcessOrders.push_back(&order);
+        inProcessOrders.push_back(order);
     else
-        completedOrders.push_back(&order);
+        completedOrders.push_back(order);
 }
 void WareHouse::removeFromVector(string nameOfVector, Order &order) {
     if (nameOfVector == "pendingOrders") {
@@ -327,13 +327,13 @@ void WareHouse::parseText(const string &configFilePath) {
             if (newCustomer) {
                 AddCustomer(newCustomer);
             }
-        } else if (type == "volunteer") {
+        } else if (type == "volunteer") { ////some problem here. distancePerStep = 0 ????
             // Parse volunteer
             std::string name;
             std::string volunteerType;
             int coolDown;
             int maxDistance;
-            int distancePerStep;
+            int distancePerStep ;
             int maxOrders = -1;
 
             iss >> name >> volunteerType >> coolDown;

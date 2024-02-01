@@ -50,19 +50,19 @@ void SimulateStep::act(WareHouse &wareHouse) {
         // ------------ step 3 ------------------
         for (Volunteer *v : wareHouse.getVectorVolunteers()) {
             if (v->isBusy()) {
-                Order order = wareHouse.getOrder((v->getActiveOrderId()));
+                Order* order = &(wareHouse.getOrder((v->getActiveOrderId())));
                 if (v->getMyType() == "collector") {
                     if (v->getCompletedOrderId() == v->getActiveOrderId()) {
                         v->resetActiveOrderId();
                         wareHouse.addToVector("pendingOrders", order);
-                        wareHouse.removeFromVector("inProcessOrders", order);
+                        wareHouse.removeFromVector("inProcessOrders", *order);
                     }
 
                 } else if (v->getMyType() == "limitedCollector") {
                     if (v->getCompletedOrderId() == v->getActiveOrderId()) {
                         v->resetActiveOrderId();
                         wareHouse.addToVector("pendingOrders", order);
-                        wareHouse.removeFromVector("inProcessOrders", order);
+                        wareHouse.removeFromVector("inProcessOrders", *order);
                     }
                     
                     if (dynamic_cast<LimitedCollectorVolunteer *>(v)->getNumOrdersLeft() == 0)
@@ -75,16 +75,16 @@ void SimulateStep::act(WareHouse &wareHouse) {
                         v->resetActiveOrderId();
                     }
                     wareHouse.addToVector("completedOrders", order);
-                    wareHouse.removeFromVector("inProcessOrders", order);
-                    order.setStatus(OrderStatus::COMPLETED);
+                    wareHouse.removeFromVector("inProcessOrders", *order);
+                    (*order).setStatus(OrderStatus::COMPLETED);
 
                 } else if (v->getMyType() == "limitedDriver") {
                     if (v->getCompletedOrderId() == v->getActiveOrderId()) {
                         v->resetActiveOrderId();
                     }
                     wareHouse.addToVector("completedOrders", order);
-                    wareHouse.removeFromVector("inProcessOrders", order);
-                    order.setStatus(OrderStatus::COMPLETED);
+                    wareHouse.removeFromVector("inProcessOrders", *order);
+                    (*order).setStatus(OrderStatus::COMPLETED);
 
                     if (dynamic_cast<LimitedDriverVolunteer *>(v)
                             ->getNumOrdersLeft() == 0) {

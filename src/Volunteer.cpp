@@ -131,34 +131,32 @@ int DriverVolunteer::getDistanceLeft() const { return distanceLeft; }
 
 int DriverVolunteer::getMaxDistance() const { return maxDistance; }
 int DriverVolunteer::getDistancePerStep() const { return distancePerStep; }
-bool DriverVolunteer::
-    decreaseDistanceLeft() { // Decrease distanceLeft by distancePerStep,return
-                             // true if distanceLeft<=0,false otherwise
+bool DriverVolunteer::decreaseDistanceLeft() {
     distanceLeft = distanceLeft - distancePerStep;
-    return distanceLeft <= 0;
+    bool output = distanceLeft <= 0;
+    return output;
 }
 
 bool DriverVolunteer::hasOrdersLeft() const { return true; }
 
 bool DriverVolunteer::canTakeOrder(const Order &order) const {
     return (!isBusy() && order.getDistance() <= maxDistance &&
-            order.getStatus() == OrderStatus::DELIVERING);
+            order.getStatus() == OrderStatus::COLLECTING);
 }
 
 void DriverVolunteer::acceptOrder(const Order &order) {
     if (canTakeOrder(order)) {
         activeOrderId = order.getId();
-        distanceLeft = maxDistance;
+        distanceLeft = order.getDistance();
     }
 }
 
-void DriverVolunteer::step() {
+void DriverVolunteer::step() { 
     if(activeOrderId != -1){
-    distanceLeft = distanceLeft - distancePerStep;
-    if (distanceLeft <= 0) {
-        distanceLeft = 0;
-        completedOrderId = activeOrderId;
-    }
+        if (decreaseDistanceLeft()) {
+            distanceLeft = 0;
+            completedOrderId = activeOrderId;
+        }
     }
 }
 
@@ -202,7 +200,7 @@ void LimitedDriverVolunteer::acceptOrder(const Order &order) {
         ordersLeft--;
     }
 }
-string LimitedDriverVolunteer::getMyType() const { return "LimitedDriver"; }
+string LimitedDriverVolunteer::getMyType() const { return "limitedDriver"; }
 string LimitedDriverVolunteer::toString() const {
     string s = "volunteerID:" + getId();
     string m = ",ActiveOrder:" + getActiveOrderId();

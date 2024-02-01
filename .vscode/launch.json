@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/main", 
-            "args": ["/workspaces/Skeleton/src/configFile.txt"],
+            "args": ["/home/vscode/Skeleton-1/src/configFile.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
