@@ -97,13 +97,6 @@ void SimulateStep::act(WareHouse &wareHouse) {
 }
 
 
-// void SimulateStep::deleteVolunteer(WareHouse &wareHouse, Volunteer *v){
-//     vector<Volunteer*> volunteers = wareHouse.getVectorVolunteers();
-//     auto iter = std::find(volunteers.begin(), volunteers.end(), v);
-//     if(iter != volunteers.end())
-//         volunteers.erase(iter);
-//     //destructor
-// };
 
 SimulateStep *SimulateStep::clone() const { 
     return new SimulateStep(*this);
@@ -116,8 +109,7 @@ string SimulateStep::toString() const {
         return "customerStatus " + std::to_string(numOfSteps) + "Completed";
 };
 
-//====================================== printActionsLog
-//===============================
+//====================================== printActionsLog===============================
 
 PrintActionsLog::PrintActionsLog() {}
 
@@ -148,8 +140,7 @@ void Close::act(WareHouse &wareHouse) { wareHouse.close(); }
 Close *Close::clone() const { return new Close(*this); }
 string Close::toString() const { return "Close Completed"; }
 
-// ===================================
-// AddOrder================================================
+// =================================== AddOrder===============================
 
 AddOrder::AddOrder(int id) : customerId(id) {}
 void AddOrder::act(WareHouse &wareHouse) {
@@ -164,6 +155,7 @@ void AddOrder::act(WareHouse &wareHouse) {
         int newId = wareHouse.getOrderCounter();
         Order *newOrder = new Order(newId, customerId, distance);
         wareHouse.addOrder(newOrder);
+        complete();
     }
 }
 string AddOrder::toString() const {

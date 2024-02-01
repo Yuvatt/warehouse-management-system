@@ -10,14 +10,14 @@
 #include "../include/Volunteer.h"
 #include "../include/WareHouse.h"
 
-
 using namespace std;
 using std::string;
 using std::vector;
 
-WareHouse::WareHouse(const string &configFilePath) 
-    : isOpen(false), actionsLog(), volunteers(), pendingOrders(), inProcessOrders(), completedOrders(), 
-     customers(), customerCounter(0), volunteerCounter(0), orderCounter(0){
+WareHouse::WareHouse(const string &configFilePath)
+    : isOpen(false), actionsLog(), volunteers(), pendingOrders(),
+      inProcessOrders(), completedOrders(), customers(), customerCounter(0),
+      volunteerCounter(0), orderCounter(0) {
     parseText(configFilePath);
 }
 
@@ -37,27 +37,27 @@ void WareHouse::start() {
         ss >> num;
         int number = stringToInt(num);
         if (action == "close") {
-            Close* close = new Close();
+            Close *close = new Close();
             close->act(*this);
             addAction(close);
-        }        
+        }
 
         else if (action == "order") {
-            AddOrder order(number);
-            order.act(*this);
-            addAction(&order);
-        } 
-        
+            AddOrder* order = new AddOrder(number);
+            order->act(*this);
+            addAction(order);
+        }
+
         else if (action == "orderStatus") {
-            PrintOrderStatus print(number);
-            print.act(*this);
-            addAction(&print);
+            PrintOrderStatus* print = new PrintOrderStatus(number);
+            print->act(*this);
+            addAction(print);
         }
 
         else if (action == "volunteerStatus") {
-            PrintVolunteerStatus print(number);
-            print.act(*this);
-            addAction(&print);
+            PrintVolunteerStatus* print = new PrintVolunteerStatus(number);
+            print->act(*this);
+            addAction(print);
         }
 
         else if (action == "customerStatus") {
@@ -65,18 +65,25 @@ void WareHouse::start() {
             print.act(*this);
             addAction(&print);
 
-
         } else if (action == "step") {
             int numberOfSteps = stringToInt(num);
-            SimulateStep step(numberOfSteps);
-            step.act(*this);
-            addAction(&step);
+            SimulateStep* step = new SimulateStep(numberOfSteps);
+            step->act(*this);
+            addAction(step);
         }
 
         else if (action == "log") {
             PrintActionsLog *print = new PrintActionsLog();
-            print->act(*this);   
+            print->act(*this);
             addAction(print);
+        }
+        else if (action == "test") {
+            AddOrder* o = new AddOrder(0);
+            PrintCustomerStatus* m = new PrintCustomerStatus(0);
+            vector<BaseAction*> c = {o,m};
+            for(BaseAction* w: c){
+                std::cout<< w->toString() << std::endl;
+            }
         }
     }
 }
@@ -85,9 +92,10 @@ void WareHouse::addOrder(Order *order) {
     pendingOrders.push_back(order);
     orderCounter++;
 }
+
+void WareHouse::addAction(BaseAction *action) { 
+    actionsLog.push_back(action); }
     
- 
-void WareHouse::addAction(BaseAction *action) { actionsLog.push_back(action); }
 void WareHouse::AddCustomer(Customer *customer) {
     customers.push_back(customer);
     customerCounter++;
@@ -110,7 +118,7 @@ Volunteer &WareHouse::getVolunteer(int volunteerId) const {
         }
     }
     CollectorVolunteer *noOne = new CollectorVolunteer(-1, "No Volunteer", -1);
-    return *noOne; 
+    return *noOne;
 }
 
 Order &WareHouse::getOrder(int orderId) const {
@@ -141,15 +149,13 @@ vector<Order *> WareHouse::getVectorOrders(string nameOfVector) const {
     else
         return completedOrders;
 }
-vector<Volunteer *> WareHouse::getVectorVolunteers() {
-    return volunteers;
-}
+vector<Volunteer *> WareHouse::getVectorVolunteers() { return volunteers; }
 vector<Customer *> WareHouse::getVectorCustomers() const { return customers; }
 
 const vector<BaseAction *> &WareHouse::getActions() const { return actionsLog; }
-void WareHouse:: findCollector(Order *order){
+void WareHouse::findCollector(Order *order) {
     bool found = false;
-    std::vector<Volunteer *>::iterator it; 
+    std::vector<Volunteer *>::iterator it;
     for (it = volunteers.begin(); it != volunteers.end() && !found; it++) {
         Volunteer *v = (*it);
 
@@ -166,11 +172,10 @@ void WareHouse:: findCollector(Order *order){
         }
     }
 }
-void WareHouse:: findDriver (Order *order){
+void WareHouse::findDriver(Order *order) {
     bool found = false;
     std::vector<Volunteer *>::iterator it;
-    for (it = volunteers.begin();
-         it != volunteers.end() && !found; it++) {
+    for (it = volunteers.begin(); it != volunteers.end() && !found; it++) {
         Volunteer *v = (*it);
 
         if (v->getMyType() == "driver" || v->getMyType() == "limitedDriver") {
@@ -186,7 +191,7 @@ void WareHouse:: findDriver (Order *order){
     }
 }
 
-void WareHouse::addToVector(string nameOfVector, Order* order) {
+void WareHouse::addToVector(string nameOfVector, Order *order) {
     if (nameOfVector == "pendingOrders")
         pendingOrders.push_back(order);
     else if (nameOfVector == "inProcessOrders")
@@ -197,7 +202,7 @@ void WareHouse::addToVector(string nameOfVector, Order* order) {
 void WareHouse::removeFromVector(string nameOfVector, Order &order) {
     if (nameOfVector == "pendingOrders") {
         std::vector<Order *>::iterator it = pendingOrders.begin();
-        while (it != pendingOrders.end()) { 
+        while (it != pendingOrders.end()) {
             if ((*it)->getId() == order.getId())
                 pendingOrders.erase(it);
             else
@@ -207,7 +212,7 @@ void WareHouse::removeFromVector(string nameOfVector, Order &order) {
 
     else if (nameOfVector == "inProcessOrders") {
         std::vector<Order *>::iterator it = inProcessOrders.begin();
-        while (it != inProcessOrders.end()) { 
+        while (it != inProcessOrders.end()) {
             if ((*it)->getId() == order.getId())
                 inProcessOrders.erase(it);
             else
@@ -249,16 +254,13 @@ bool WareHouse::isOrderExist(int orderId) const {
 }
 
 void WareHouse::backUp() {
-    if(backup == nullptr)
+    if (backup == nullptr)
         backup = new WareHouse(*this);
     else
         *backup = *this;
 }
 
-void WareHouse::restore(){
-    *this = *backup;
-}
-
+void WareHouse::restore() { *this = *backup; }
 
 void WareHouse::close() {
 
@@ -327,14 +329,15 @@ void WareHouse::parseText(const string &configFilePath) {
             if (newCustomer) {
                 AddCustomer(newCustomer);
             }
-        } else if (type == "volunteer") { ////some problem here. distancePerStep = 0 ????
+        } else if (type == "volunteer") { ////some problem here. distancePerStep
+                                          ///= 0 ????
             // Parse volunteer
             std::string name;
             std::string volunteerType;
             int coolDown;
-            int maxDistance;
-            int distancePerStep ;
-            int maxOrders = -1;
+            
+            int distancePerStep;
+            int maxOrders;
 
             iss >> name >> volunteerType >> coolDown;
 
@@ -347,11 +350,26 @@ void WareHouse::parseText(const string &configFilePath) {
                 newVolunteer = new LimitedCollectorVolunteer(
                     volunteers.size(), name, coolDown, maxOrders);
             } else if (volunteerType == "driver") {
+                int maxDistance;
                 iss >> maxDistance >> distancePerStep;
                 newVolunteer = new DriverVolunteer(
                     volunteers.size(), name, maxDistance, distancePerStep);
+                    
             } else if (volunteerType == "limited_driver") {
+                int maxDistance, distancePerStep, maxOrders;
                 iss >> maxDistance >> distancePerStep >> maxOrders;
+                std::cout << "Reading limited_driver values:" << std::endl;
+                std::cout << "Before: maxDistance=" << maxDistance
+                          << ", distancePerStep=" << distancePerStep
+                          << ", maxOrders=" << maxOrders << std::endl;
+
+                iss >> maxDistance >> distancePerStep >> maxOrders;
+
+                std::cout << "After: maxDistance=" << maxDistance
+                          << ", distancePerStep=" << distancePerStep
+                          << ", maxOrders=" << maxOrders << std::endl;
+                
+                
                 newVolunteer = new LimitedDriverVolunteer(
                     volunteers.size(), name, maxDistance, distancePerStep,
                     maxOrders);
@@ -383,4 +401,3 @@ int stringToInt(const std::string &str) {
 
     return result;
 }
-
