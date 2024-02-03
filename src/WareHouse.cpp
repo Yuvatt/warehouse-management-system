@@ -19,11 +19,12 @@ WareHouse::WareHouse(const string &configFilePath)
       inProcessOrders(), completedOrders(), customers(), customerCounter(0),
       volunteerCounter(0), orderCounter(0) {
 
-        
-      // Parse the file and populate the vectors
+    // Parse the file and populate the vectors
     std::ifstream inputFile(configFilePath);
     if (!inputFile.is_open() || inputFile.fail()) {
-        std:: cout << "Configuration file is not accessible or empty, starting with empty configuration" << std:: endl;
+        std::cout << "Configuration file is not accessible or empty, starting "
+                     "with empty configuration"
+                  << std::endl;
     }
     std::string line;
     while (std::getline(inputFile, line)) {
@@ -37,16 +38,18 @@ WareHouse::WareHouse(const string &configFilePath)
             iss >> name >> type >> distance >> maxOrders;
 
             if (type == "soldier") {
-                SoldierCustomer *temp = new SoldierCustomer(getCustomerCounter(), name, distance, maxOrders);
+                SoldierCustomer *temp = new SoldierCustomer(
+                    getCustomerCounter(), name, distance, maxOrders);
                 customers.push_back(temp);
                 temp = nullptr;
                 customerCounter++;
             }
 
             else if (type == "civilian") {
-                CivilianCustomer *temp = new CivilianCustomer(getCustomerCounter(), name, distance, maxOrders);
+                CivilianCustomer *temp = new CivilianCustomer(
+                    getCustomerCounter(), name, distance, maxOrders);
                 customers.push_back(temp);
-                temp = nullptr; 
+                temp = nullptr;
                 customerCounter++;
             }
 
@@ -59,18 +62,20 @@ WareHouse::WareHouse(const string &configFilePath)
             if (type == "collector") {
                 int coolDown;
                 iss >> coolDown;
-                CollectorVolunteer *temp = new CollectorVolunteer(getVolunteerCounter(), name, coolDown);
+                CollectorVolunteer *temp = new CollectorVolunteer(
+                    getVolunteerCounter(), name, coolDown);
                 volunteers.push_back(temp);
-                temp = nullptr; 
+                temp = nullptr;
                 volunteerCounter++;
             }
 
-            else if (type == "limited_collector") {     
-                int coolDown , maxOrders;
+            else if (type == "limited_collector") {
+                int coolDown, maxOrders;
                 iss >> coolDown >> maxOrders;
-                LimitedCollectorVolunteer *temp = new LimitedCollectorVolunteer(getVolunteerCounter(), name, coolDown, maxOrders);
+                LimitedCollectorVolunteer *temp = new LimitedCollectorVolunteer(
+                    getVolunteerCounter(), name, coolDown, maxOrders);
                 volunteers.push_back(temp);
-                temp = nullptr; 
+                temp = nullptr;
                 volunteerCounter++;
 
             }
@@ -78,19 +83,23 @@ WareHouse::WareHouse(const string &configFilePath)
             else if (type == "driver") {
                 int maxDistance, distance_per_step;
                 iss >> maxDistance >> distance_per_step;
-                DriverVolunteer *temp = new DriverVolunteer(getVolunteerCounter(), name, maxDistance, distance_per_step);
+                DriverVolunteer *temp =
+                    new DriverVolunteer(getVolunteerCounter(), name,
+                                        maxDistance, distance_per_step);
                 volunteers.push_back(temp);
-                temp = nullptr; 
+                temp = nullptr;
                 volunteerCounter++;
 
             }
 
             else if (type == "limited_driver") {
-                int maxDistance, distance_per_step , maxOrders;
+                int maxDistance, distance_per_step, maxOrders;
                 iss >> maxDistance >> distance_per_step >> maxOrders;
-                LimitedDriverVolunteer *temp = new LimitedDriverVolunteer(getVolunteerCounter(), name, maxDistance, distance_per_step, maxOrders);
+                LimitedDriverVolunteer *temp = new LimitedDriverVolunteer(
+                    getVolunteerCounter(), name, maxDistance, distance_per_step,
+                    maxOrders);
                 volunteers.push_back(temp);
-                temp = nullptr; 
+                temp = nullptr;
                 volunteerCounter++;
             }
         }
@@ -98,7 +107,6 @@ WareHouse::WareHouse(const string &configFilePath)
 
     inputFile.close(); // release the file resource
 }
-
 
 void WareHouse::start() {
 
@@ -137,24 +145,24 @@ void WareHouse::start() {
             addAction(restore);
         }
 
-        else{
+        else {
             ss >> num;
-            int number = stringToInt(num); 
+            int number = stringToInt(num);
 
             if (action == "order") {
-                AddOrder* order = new AddOrder(number);
+                AddOrder *order = new AddOrder(number);
                 order->act(*this);
                 addAction(order);
             }
 
             else if (action == "orderStatus") {
-                PrintOrderStatus* print = new PrintOrderStatus(number);
+                PrintOrderStatus *print = new PrintOrderStatus(number);
                 print->act(*this);
                 addAction(print);
             }
 
             else if (action == "volunteerStatus") {
-                PrintVolunteerStatus* print = new PrintVolunteerStatus(number);
+                PrintVolunteerStatus *print = new PrintVolunteerStatus(number);
                 print->act(*this);
                 addAction(print);
             }
@@ -166,7 +174,7 @@ void WareHouse::start() {
 
             } else if (action == "step") {
                 int numberOfSteps = stringToInt(num);
-                SimulateStep* step = new SimulateStep(numberOfSteps);
+                SimulateStep *step = new SimulateStep(numberOfSteps);
                 step->act(*this);
                 addAction(step);
             }
@@ -179,9 +187,8 @@ void WareHouse::addOrder(Order *order) {
     orderCounter++;
 }
 
-void WareHouse::addAction(BaseAction *action) { 
-    actionsLog.push_back(action); }
-    
+void WareHouse::addAction(BaseAction *action) { actionsLog.push_back(action); }
+
 void WareHouse::AddCustomer(Customer *customer) {
     customers.push_back(customer);
     customerCounter++;
@@ -307,17 +314,16 @@ void WareHouse::removeFromVector(string nameOfVector, Order &order) {
     }
 }
 void WareHouse::removeFromVector(Volunteer &volunteer) {
-        std::vector<Volunteer *>::iterator it = volunteers.begin();
-        while (it != volunteers.end()) {
-            if ((*it)->getId() == volunteer.getId())
-                volunteers.erase(it);
-            else
-                ++it;
+    std::vector<Volunteer *>::iterator it = volunteers.begin();
+    while (it != volunteers.end()) {
+        if ((*it)->getId() == volunteer.getId())
+            volunteers.erase(it);
+        else
+            ++it;
     }
 }
 
-
-void WareHouse:: deleteVolunteer (Volunteer* v){
+void WareHouse::deleteVolunteer(Volunteer *v) {
     removeFromVector(*v);
     delete v;
     volunteerCounter--;
@@ -403,108 +409,78 @@ int stringToInt(const std::string &str) {
     return result;
 }
 
-
-
-//Destructor
-WareHouse::~WareHouse(){
-    for (BaseAction* action : actionsLog) 
+// Destructor
+WareHouse::~WareHouse() {
+    for (BaseAction *action : actionsLog)
         delete action;
-    for (Volunteer* volunteer : volunteers) 
+    for (Volunteer *volunteer : volunteers)
         delete volunteer;
-    for (Order* order : pendingOrders) 
+    for (Order *order : pendingOrders)
         delete order;
-    for (Order* order : inProcessOrders) 
+    for (Order *order : inProcessOrders)
         delete order;
-    for (Order* order : completedOrders) 
+    for (Order *order : completedOrders)
         delete order;
-    for (Customer* customer : customers) 
+    for (Customer *customer : customers)
         delete customer;
 }
 
 // Copy Constructor
-WareHouse::WareHouse(const WareHouse& other){
-    isOpen = other.isOpen;
-    customerCounter = other.customerCounter;
-    volunteerCounter = other.volunteerCounter;
-    orderCounter = other.orderCounter;
-
-    for (const auto& action : other.actionsLog) {
-        actionsLog.push_back(action->clone()); 
-    }
-    
-    // for (const auto& volunteer : other.volunteers) {
-    //     volunteers.push_back(new Volunteer(*volunteer));
-    // }
-
-    for (const auto& pendingOrder : other.pendingOrders) {
-        pendingOrders.push_back(new Order(*pendingOrder));
-    }
-
-    for (const auto& inProcessOrders : other.inProcessOrders) {
-        inProcessOrders.push_back(new Order(*inProcessOrders));
-    }
-
-    for (const auto& completedOrders : other.completedOrders) {
-        completedOrders.push_back(new Order(*completedOrders));
-    }
-
-
-}
+WareHouse::WareHouse(const WareHouse &other)
+    : isOpen(other.isOpen), actionsLog(other.actionsLog),
+      volunteers(other.volunteers), pendingOrders(other.pendingOrders),
+      inProcessOrders(other.inProcessOrders),
+      completedOrders(other.completedOrders), customers(other.customers),
+      customerCounter(other.customerCounter),
+      volunteerCounter(other.volunteerCounter),
+      orderCounter(other.orderCounter) {}
 
 // // Copy Assignment Operator
-WareHouse& WareHouse::operator=(const WareHouse& other){
-    if(this != &other){
+WareHouse &WareHouse::operator=(const WareHouse &other) {
+    if (this != &other) {
         isOpen = other.isOpen;
         customerCounter = other.customerCounter;
         volunteerCounter = other.volunteerCounter;
         orderCounter = other.orderCounter;
 
-        for (const auto& action : other.actionsLog) {
-            actionsLog.push_back(action->clone()); 
-        }
-        
-        // for (const auto& volunteer : other.volunteers) {
-        //     volunteers.push_back(new Volunteer(*volunteer));
-        // }
-
-        for (const auto& pendingOrder : other.pendingOrders) {
-            pendingOrders.push_back(new Order(*pendingOrder));
+        for (BaseAction *action : other.actionsLog) {
+            actionsLog.push_back(action->clone());
         }
 
-        // for (const auto& inProcessOrders : other.inProcessOrders) {
-        //     inProcessOrders.push_back(new Order(*inProcessOrders));
-        // }
+        for (Volunteer *volunteer : other.volunteers) {
+            volunteers.push_back(volunteer->clone());
+        }
 
-        // for (const auto& completedOrders : other.completedOrders) {
-        //     completedOrders.push_back(new Order(*completedOrders));
-        // }
+        for (Order *order : other.pendingOrders) {
+            pendingOrders.push_back(new Order(*order));
+        }
+
+        for (Order *order : other.inProcessOrders) {
+            inProcessOrders.push_back(new Order(*order));
+        }
+
+        for (Order *order : other.completedOrders) {
+            completedOrders.push_back(new Order(*order));
+        }
     }
     return *this;
 }
 
 // Move Constructor
-WareHouse::WareHouse(WareHouse&& other) noexcept {
-    isOpen = other.isOpen;
-    customerCounter = other.customerCounter;
-    volunteerCounter = other.volunteerCounter;
-    orderCounter = other.orderCounter;
-
-    actionsLog = std::move(other.actionsLog);
-    volunteers = std::move(other.volunteers);
-    customers = std::move(other.customers);
-    pendingOrders = std::move(other.pendingOrders);
-    inProcessOrders = std::move(other.inProcessOrders);
-    completedOrders = std::move(other.completedOrders);
-
-    other.isOpen = false;
-    other.customerCounter = -1;
-    other.volunteerCounter = -1;
-    other.orderCounter = -1;
-}
+WareHouse::WareHouse(WareHouse &&other) noexcept
+    : isOpen(std::move(other.isOpen)), actionsLog(std::move(other.actionsLog)),
+      volunteers(std::move(other.volunteers)),
+      pendingOrders(std::move(other.pendingOrders)),
+      inProcessOrders(std::move(other.inProcessOrders)),
+      completedOrders(std::move(other.completedOrders)),
+      customers(std::move(other.customers)),
+      customerCounter(std::move(other.customerCounter)),
+      volunteerCounter(std::move(other.volunteerCounter)),
+      orderCounter(std::move(other.orderCounter)) {}
 
 // Move Assignment Operator
-WareHouse& WareHouse::operator=(WareHouse&& other) noexcept {
-    if (this != &other) { 
+WareHouse &WareHouse::operator=(WareHouse &&other) noexcept {
+    if (this != &other) {
         isOpen = other.isOpen;
         customerCounter = other.customerCounter;
         volunteerCounter = other.volunteerCounter;

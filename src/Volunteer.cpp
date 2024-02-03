@@ -11,6 +11,8 @@ using std::vector;
 Volunteer::Volunteer(int id, const string &name)
     : completedOrderId(NO_ORDER), activeOrderId(NO_ORDER), type(""), id(id), name(name) {};
 
+
+
 int Volunteer::getId() const { return id; }
 
 const string &Volunteer::getName() const { return name; }
