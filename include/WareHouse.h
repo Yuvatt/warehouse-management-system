@@ -38,6 +38,8 @@ class WareHouse {
         void findDriver(Order *order);
         void addToVector (string nameOfVector, Order* order);
         void removeFromVector (string nameOfVector, Order &order);
+        void removeFromVector (Volunteer &volunteer);
+        void deleteVolunteer (Volunteer *v);
 
         void backUp();
         void restore();
@@ -47,6 +49,25 @@ class WareHouse {
         
         void parseText(const string &configFilePath);
         void printCustomers();
+
+// -------------------------Rule Of Five:------------------------------------- 
+
+        // Destructor
+        ~WareHouse();
+
+        // Copy Constructor
+        WareHouse(const WareHouse& other);
+
+        // Copy Assignment Operator
+        WareHouse& operator=(const WareHouse& other);
+
+        // Move Constructor
+        WareHouse(WareHouse&& other) noexcept;
+
+        // Move Assignment Operator
+        WareHouse& operator=(WareHouse&& other) noexcept;
+        
+//----------------------------------------------------------------------------
   
     private:
         bool isOpen;

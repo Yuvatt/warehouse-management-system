@@ -18,8 +18,87 @@ WareHouse::WareHouse(const string &configFilePath)
     : isOpen(false), actionsLog(), volunteers(), pendingOrders(),
       inProcessOrders(), completedOrders(), customers(), customerCounter(0),
       volunteerCounter(0), orderCounter(0) {
-    parseText(configFilePath);
+
+        
+      // Parse the file and populate the vectors
+    std::ifstream inputFile(configFilePath);
+    if (!inputFile.is_open() || inputFile.fail()) {
+        std:: cout << "Configuration file is not accessible or empty, starting with empty configuration" << std:: endl;
+    }
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        std::istringstream iss(line);
+        std::string category;
+        iss >> category;
+
+        if (category == "customer") {
+            std::string name, type;
+            int distance, maxOrders;
+            iss >> name >> type >> distance >> maxOrders;
+
+            if (type == "soldier") {
+                SoldierCustomer *temp = new SoldierCustomer(getCustomerCounter(), name, distance, maxOrders);
+                customers.push_back(temp);
+                temp = nullptr;
+                customerCounter++;
+            }
+
+            else if (type == "civilian") {
+                CivilianCustomer *temp = new CivilianCustomer(getCustomerCounter(), name, distance, maxOrders);
+                customers.push_back(temp);
+                temp = nullptr; 
+                customerCounter++;
+            }
+
+        }
+
+        else if (category == "volunteer") {
+            std::string name, type;
+            iss >> name >> type;
+
+            if (type == "collector") {
+                int coolDown;
+                iss >> coolDown;
+                CollectorVolunteer *temp = new CollectorVolunteer(getVolunteerCounter(), name, coolDown);
+                volunteers.push_back(temp);
+                temp = nullptr; 
+                volunteerCounter++;
+            }
+
+            else if (type == "limited_collector") {     
+                int coolDown , maxOrders;
+                iss >> coolDown >> maxOrders;
+                LimitedCollectorVolunteer *temp = new LimitedCollectorVolunteer(getVolunteerCounter(), name, coolDown, maxOrders);
+                volunteers.push_back(temp);
+                temp = nullptr; 
+                volunteerCounter++;
+
+            }
+
+            else if (type == "driver") {
+                int maxDistance, distance_per_step;
+                iss >> maxDistance >> distance_per_step;
+                DriverVolunteer *temp = new DriverVolunteer(getVolunteerCounter(), name, maxDistance, distance_per_step);
+                volunteers.push_back(temp);
+                temp = nullptr; 
+                volunteerCounter++;
+
+            }
+
+            else if (type == "limited_driver") {
+                int maxDistance, distance_per_step , maxOrders;
+                iss >> maxDistance >> distance_per_step >> maxOrders;
+                LimitedDriverVolunteer *temp = new LimitedDriverVolunteer(getVolunteerCounter(), name, maxDistance, distance_per_step, maxOrders);
+                volunteers.push_back(temp);
+                temp = nullptr; 
+                volunteerCounter++;
+            }
+        }
+    };
+
+    inputFile.close(); // release the file resource
 }
+
 
 void WareHouse::start() {
 
@@ -34,42 +113,10 @@ void WareHouse::start() {
         string num;
 
         ss >> action;
-        ss >> num;
-        int number = stringToInt(num);
         if (action == "close") {
             Close *close = new Close();
             close->act(*this);
             addAction(close);
-        }
-
-        else if (action == "order") {
-            AddOrder* order = new AddOrder(number);
-            order->act(*this);
-            addAction(order);
-        }
-
-        else if (action == "orderStatus") {
-            PrintOrderStatus* print = new PrintOrderStatus(number);
-            print->act(*this);
-            addAction(print);
-        }
-
-        else if (action == "volunteerStatus") {
-            PrintVolunteerStatus* print = new PrintVolunteerStatus(number);
-            print->act(*this);
-            addAction(print);
-        }
-
-        else if (action == "customerStatus") {
-            PrintCustomerStatus print(number);
-            print.act(*this);
-            addAction(&print);
-
-        } else if (action == "step") {
-            int numberOfSteps = stringToInt(num);
-            SimulateStep* step = new SimulateStep(numberOfSteps);
-            step->act(*this);
-            addAction(step);
         }
 
         else if (action == "log") {
@@ -77,12 +124,51 @@ void WareHouse::start() {
             print->act(*this);
             addAction(print);
         }
-        else if (action == "test") {
-            AddOrder* o = new AddOrder(0);
-            PrintCustomerStatus* m = new PrintCustomerStatus(0);
-            vector<BaseAction*> c = {o,m};
-            for(BaseAction* w: c){
-                std::cout<< w->toString() << std::endl;
+
+        else if (action == "backup") {
+            BackupWareHouse *backup = new BackupWareHouse();
+            addAction(backup);
+            backup->act(*this);
+        }
+
+        else if (action == "restore") {
+            RestoreWareHouse *restore = new RestoreWareHouse();
+            restore->act(*this);
+            addAction(restore);
+        }
+
+        else{
+            ss >> num;
+            int number = stringToInt(num); 
+
+            if (action == "order") {
+                AddOrder* order = new AddOrder(number);
+                order->act(*this);
+                addAction(order);
+            }
+
+            else if (action == "orderStatus") {
+                PrintOrderStatus* print = new PrintOrderStatus(number);
+                print->act(*this);
+                addAction(print);
+            }
+
+            else if (action == "volunteerStatus") {
+                PrintVolunteerStatus* print = new PrintVolunteerStatus(number);
+                print->act(*this);
+                addAction(print);
+            }
+
+            else if (action == "customerStatus") {
+                PrintCustomerStatus print(number);
+                print.act(*this);
+                addAction(&print);
+
+            } else if (action == "step") {
+                int numberOfSteps = stringToInt(num);
+                SimulateStep* step = new SimulateStep(numberOfSteps);
+                step->act(*this);
+                addAction(step);
             }
         }
     }
@@ -220,6 +306,22 @@ void WareHouse::removeFromVector(string nameOfVector, Order &order) {
         }
     }
 }
+void WareHouse::removeFromVector(Volunteer &volunteer) {
+        std::vector<Volunteer *>::iterator it = volunteers.begin();
+        while (it != volunteers.end()) {
+            if ((*it)->getId() == volunteer.getId())
+                volunteers.erase(it);
+            else
+                ++it;
+    }
+}
+
+
+void WareHouse:: deleteVolunteer (Volunteer* v){
+    removeFromVector(*v);
+    delete v;
+    volunteerCounter--;
+}
 
 bool WareHouse::isCustomerExist(int customerId) const {
     for (Customer *c : customers) {
@@ -288,107 +390,6 @@ void WareHouse::printCustomers() {
     }
 }
 
-void WareHouse::parseText(const string &configFilePath) {
-
-    ifstream configFile(configFilePath);
-    if (!configFile.is_open()) {
-        std::cerr << "Error opening the configuration file." << std::endl;
-        return;
-    }
-
-    customerCounter = 0;
-    volunteerCounter = 0;
-    std::string line;
-    while (getline(configFile, line)) {
-        std::istringstream iss(line);
-        std::string type;
-        iss >> type;
-
-        if (type == "customer") {
-            // Parse customer
-            std::string name;
-            std::string customerType;
-            int distance;
-            int maxOrders;
-
-            iss >> name >> customerType >> distance >> maxOrders;
-
-            Customer *newCustomer = nullptr;
-            if (customerType == "soldier") {
-                newCustomer = new SoldierCustomer(customers.size(), name,
-                                                  distance, maxOrders);
-            } else if (customerType == "civilian") {
-                newCustomer = new CivilianCustomer(customers.size(), name,
-                                                   distance, maxOrders);
-            } else {
-                std::cerr << "Unknown customer type: " << customerType
-                          << std::endl;
-            }
-
-            // add customer to warehouse
-            if (newCustomer) {
-                AddCustomer(newCustomer);
-            }
-        } else if (type == "volunteer") { ////some problem here. distancePerStep
-                                          ///= 0 ????
-            // Parse volunteer
-            std::string name;
-            std::string volunteerType;
-            int coolDown;
-            
-            int distancePerStep;
-            int maxOrders;
-
-            iss >> name >> volunteerType >> coolDown;
-
-            Volunteer *newVolunteer = nullptr;
-            if (volunteerType == "collector") {
-                newVolunteer =
-                    new CollectorVolunteer(volunteers.size(), name, coolDown);
-            } else if (volunteerType == "limited_collector") {
-                iss >> maxOrders;
-                newVolunteer = new LimitedCollectorVolunteer(
-                    volunteers.size(), name, coolDown, maxOrders);
-            } else if (volunteerType == "driver") {
-                int maxDistance;
-                iss >> maxDistance >> distancePerStep;
-                newVolunteer = new DriverVolunteer(
-                    volunteers.size(), name, maxDistance, distancePerStep);
-                    
-            } else if (volunteerType == "limited_driver") {
-                int maxDistance, distancePerStep, maxOrders;
-                iss >> maxDistance >> distancePerStep >> maxOrders;
-                std::cout << "Reading limited_driver values:" << std::endl;
-                std::cout << "Before: maxDistance=" << maxDistance
-                          << ", distancePerStep=" << distancePerStep
-                          << ", maxOrders=" << maxOrders << std::endl;
-
-                iss >> maxDistance >> distancePerStep >> maxOrders;
-
-                std::cout << "After: maxDistance=" << maxDistance
-                          << ", distancePerStep=" << distancePerStep
-                          << ", maxOrders=" << maxOrders << std::endl;
-                
-                
-                newVolunteer = new LimitedDriverVolunteer(
-                    volunteers.size(), name, maxDistance, distancePerStep,
-                    maxOrders);
-            } else {
-                std::cerr << "Unknown volunteer type: " << volunteerType
-                          << std::endl;
-            }
-
-            // add to warehouse
-            if (newVolunteer) {
-                volunteerCounter++;
-                volunteers.push_back(newVolunteer);
-            }
-        }
-    }
-
-    configFile.close();
-}
-
 int stringToInt(const std::string &str) {
     std::istringstream iss(str);
     int result = 0;
@@ -401,3 +402,120 @@ int stringToInt(const std::string &str) {
 
     return result;
 }
+
+
+
+//Destructor
+WareHouse::~WareHouse(){
+    for (BaseAction* action : actionsLog) 
+        delete action;
+    for (Volunteer* volunteer : volunteers) 
+        delete volunteer;
+    for (Order* order : pendingOrders) 
+        delete order;
+    for (Order* order : inProcessOrders) 
+        delete order;
+    for (Order* order : completedOrders) 
+        delete order;
+    for (Customer* customer : customers) 
+        delete customer;
+}
+
+// Copy Constructor
+WareHouse::WareHouse(const WareHouse& other){
+    isOpen = other.isOpen;
+    customerCounter = other.customerCounter;
+    volunteerCounter = other.volunteerCounter;
+    orderCounter = other.orderCounter;
+
+    for (const auto& action : other.actionsLog) {
+        actionsLog.push_back(action->clone()); 
+    }
+    
+    // for (const auto& volunteer : other.volunteers) {
+    //     volunteers.push_back(new Volunteer(*volunteer));
+    // }
+
+    for (const auto& pendingOrder : other.pendingOrders) {
+        pendingOrders.push_back(new Order(*pendingOrder));
+    }
+
+    for (const auto& inProcessOrders : other.inProcessOrders) {
+        inProcessOrders.push_back(new Order(*inProcessOrders));
+    }
+
+    for (const auto& completedOrders : other.completedOrders) {
+        completedOrders.push_back(new Order(*completedOrders));
+    }
+
+
+}
+
+// // Copy Assignment Operator
+WareHouse& WareHouse::operator=(const WareHouse& other){
+    if(this != &other){
+        isOpen = other.isOpen;
+        customerCounter = other.customerCounter;
+        volunteerCounter = other.volunteerCounter;
+        orderCounter = other.orderCounter;
+
+        for (const auto& action : other.actionsLog) {
+            actionsLog.push_back(action->clone()); 
+        }
+        
+        // for (const auto& volunteer : other.volunteers) {
+        //     volunteers.push_back(new Volunteer(*volunteer));
+        // }
+
+        for (const auto& pendingOrder : other.pendingOrders) {
+            pendingOrders.push_back(new Order(*pendingOrder));
+        }
+
+        // for (const auto& inProcessOrders : other.inProcessOrders) {
+        //     inProcessOrders.push_back(new Order(*inProcessOrders));
+        // }
+
+        // for (const auto& completedOrders : other.completedOrders) {
+        //     completedOrders.push_back(new Order(*completedOrders));
+        // }
+    }
+    return *this;
+}
+
+// Move Constructor
+WareHouse::WareHouse(WareHouse&& other) noexcept {
+    isOpen = other.isOpen;
+    customerCounter = other.customerCounter;
+    volunteerCounter = other.volunteerCounter;
+    orderCounter = other.orderCounter;
+
+    actionsLog = std::move(other.actionsLog);
+    volunteers = std::move(other.volunteers);
+    customers = std::move(other.customers);
+    pendingOrders = std::move(other.pendingOrders);
+    inProcessOrders = std::move(other.inProcessOrders);
+    completedOrders = std::move(other.completedOrders);
+
+    other.isOpen = false;
+    other.customerCounter = -1;
+    other.volunteerCounter = -1;
+    other.orderCounter = -1;
+}
+
+// Move Assignment Operator
+WareHouse& WareHouse::operator=(WareHouse&& other) noexcept {
+    if (this != &other) { 
+        isOpen = other.isOpen;
+        customerCounter = other.customerCounter;
+        volunteerCounter = other.volunteerCounter;
+        orderCounter = other.orderCounter;
+
+        actionsLog = std::move(other.actionsLog);
+        volunteers = std::move(other.volunteers);
+        customers = std::move(other.customers);
+        pendingOrders = std::move(other.pendingOrders);
+        inProcessOrders = std::move(other.inProcessOrders);
+        completedOrders = std::move(other.completedOrders);
+    }
+    return *this;
+};

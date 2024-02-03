@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/main", 
-            "args": ["/home/vscode/Skeleton-1/src/configFile.txt"],
+            "args": ["/home/vscode/Skeleton-2/src/driverDeleteTest.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

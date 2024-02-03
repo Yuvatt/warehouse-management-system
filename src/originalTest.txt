@@ -1,0 +1,33 @@
+# Customers - customer <customer_name> <customer_type> <customer_distance> <max_orders>
+
+customer Moshe soldier 3 2              # Example of a soldier customer called Moshe, distance=3, maxOrders=2
+customer Ron civilian 2 1               # Example of a civilian customer called Ron, distance=2, maxOrders=1
+
+# Volunteers - volunteer <volunteer_name> <volunteer_role> <volunteer_coolDown>/<volunteer_maxDistance> <distance_per_step>(for drivers only) <volunteer_maxOrders>(optional)
+
+volunteer Tamar collector 2             # Example of a collector, coolDown=2, maxOrders is unlimited
+volunteer Ron limited_collector 3 2     # Example of a limited collector, coolDown=3, maxOrders=2
+volunteer Tal driver 7 4                # Example of a driver, maxDistance=7, distance_per_step=4, maxOrders is unlimited
+volunteer Din limited_driver 3 2 3      # Example of a limited driver, maxDistance=3, distance_per_step=2, maxOrders=3
+order 17 ##Expected: Error: Cannot place this order
+order 0
+OrderStatus 0 ##Expected: OrderId: 0, OrderStatus: Pending, CustomerID: 0, Collector: None, Driver: None
+order 0
+step 1
+orderStatus 0 		##Expected: OrderId: 0, OrderStatus: Collecting, CustomerID: 0, Collector: 0, Driver: None
+orderStatus 1 		##Expected: OrderId: 0, OrderStatus: Collecting, CustomerID: 0, Collector: 1, Driver: None
+volunteerStatus 0	##Expected: VolunteerID: 0, isBusy: True, OrderId: 0, timeLeft: 1, ordersLeft: No Limit
+volunteerStatus 1 	##Expected: VolunteerID: 1, isBusy: True, OrderId: 1, timeLeft: 2, ordersLeft: 1
+step 1
+orderStatus 0 		##Expected: OrderId: 0, OrderStatus: Collecting, CustomerID: 0, Collector: 0, Driver: None
+step 1			
+orderStatus 0 		##Expected: OrderId: 0, OrderStatus: Completed, CustomerID: 0, Collector: 0, Driver: 2
+orderStatus 1		##Expected: OrderId: 1, OrderStatus: Collecting, CustomerID: 0, Collector: 1, Driver: None
+customerStatus 0	##Expected: CustomerID 0, OrderId:0, OrderStatus: Completed, OrderId: 1, OrderStatus: Collecting, numOrdersLeft: 0
+order 1
+order 1			##Expected: Error: Cannot place this order
+log			##Verify that this match to PDF's log
+log			##Verify that this match to PDF's log
+close			##Expected: OrderID: 1, CustomerID: 0, Status: Collecting
+				OrderID: 2, CustomerID: 1, Status: Pending
+				OrderID: 0, CustomerID: 0, Status: Completed
