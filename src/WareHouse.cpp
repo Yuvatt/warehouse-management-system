@@ -118,7 +118,7 @@ void WareHouse::start() {
         std::getline(std::cin, input);
         std::stringstream ss(input);
         string action;
-        string num;
+        int number;
 
         ss >> action;
         if (action == "close") {
@@ -137,47 +137,52 @@ void WareHouse::start() {
             BackupWareHouse *backup = new BackupWareHouse();
             addAction(backup);
             backup->act(*this);
-        }
-
-        else if (action == "restore") {
+        } else if (action == "restore") {
             RestoreWareHouse *restore = new RestoreWareHouse();
             restore->act(*this);
             addAction(restore);
         }
 
-        else {
-            ss >> num;
-            int number = stringToInt(num);
+        else if (action == "customer") {
+            string name, type;
+            int distance, maxOrders;
+            ss >> name >> type >> distance >> maxOrders;
+            AddCustomer *cu = new AddCustomer(name, type, distance,maxOrders);
+            cu->act(*this);
+            addAction(cu);
 
-            if (action == "order") {
-                AddOrder *order = new AddOrder(number);
-                order->act(*this);
-                addAction(order);
-            }
+        } else if (action == "order") {
+            ss >> number;
+            AddOrder *order = new AddOrder(number);
+            order->act(*this);
+            addAction(order);
+        }
 
-            else if (action == "orderStatus") {
-                PrintOrderStatus *print = new PrintOrderStatus(number);
-                print->act(*this);
-                addAction(print);
-            }
+        else if (action == "orderStatus") {
+            ss >> number;
+            PrintOrderStatus *print = new PrintOrderStatus(number);
+            print->act(*this);
+            addAction(print);
+        }
 
-            else if (action == "volunteerStatus") {
-                PrintVolunteerStatus *print = new PrintVolunteerStatus(number);
-                print->act(*this);
-                addAction(print);
-            }
+        else if (action == "volunteerStatus") {
+            ss >> number;
+            PrintVolunteerStatus *print = new PrintVolunteerStatus(number);
+            print->act(*this);
+            addAction(print);
+        }
 
-            else if (action == "customerStatus") {
-                PrintCustomerStatus print(number);
-                print.act(*this);
-                addAction(&print);
+        else if (action == "customerStatus") {
+            ss >> number;
+            PrintCustomerStatus print(number);
+            print.act(*this);
+            addAction(&print);
 
-            } else if (action == "step") {
-                int numberOfSteps = stringToInt(num);
-                SimulateStep *step = new SimulateStep(numberOfSteps);
-                step->act(*this);
-                addAction(step);
-            }
+        } else if (action == "step") {
+            ss >> number;
+            SimulateStep *step = new SimulateStep(number);
+            step->act(*this);
+            addAction(step);
         }
     }
 }
@@ -203,7 +208,6 @@ Customer &WareHouse::getCustomer(int customerId) const {
     SoldierCustomer *noOne = new SoldierCustomer(-1, "No Customer", -1, -1);
     return *noOne;
 }
-
 Volunteer &WareHouse::getVolunteer(int volunteerId) const {
     for (Volunteer *v : volunteers) {
         if (v->getId() == volunteerId) {
@@ -213,7 +217,6 @@ Volunteer &WareHouse::getVolunteer(int volunteerId) const {
     CollectorVolunteer *noOne = new CollectorVolunteer(-1, "No Volunteer", -1);
     return *noOne;
 }
-
 Order &WareHouse::getOrder(int orderId) const {
     Order *order = nullptr;
     for (Order *o : pendingOrders) {
@@ -233,7 +236,6 @@ Order &WareHouse::getOrder(int orderId) const {
 int WareHouse::getOrderCounter() const { return orderCounter; }
 int WareHouse::getVolunteerCounter() const { return volunteerCounter; }
 int WareHouse::getCustomerCounter() const { return customerCounter; }
-
 vector<Order *> WareHouse::getVectorOrders(string nameOfVector) const {
     if (nameOfVector == "pendingOrders")
         return pendingOrders;
@@ -244,8 +246,8 @@ vector<Order *> WareHouse::getVectorOrders(string nameOfVector) const {
 }
 vector<Volunteer *> WareHouse::getVectorVolunteers() { return volunteers; }
 vector<Customer *> WareHouse::getVectorCustomers() const { return customers; }
-
 const vector<BaseAction *> &WareHouse::getActions() const { return actionsLog; }
+
 void WareHouse::findCollector(Order *order) {
     bool found = false;
     std::vector<Volunteer *>::iterator it;
@@ -368,7 +370,19 @@ void WareHouse::backUp() {
         *backup = *this;
 }
 
-void WareHouse::restore() { *this = *backup; }
+void WareHouse::restore() {
+    resetVectors();
+    *this = *backup;
+}
+
+void WareHouse::resetVectors() {
+    actionsLog = {};
+    volunteers = {};
+    pendingOrders = {};
+    inProcessOrders = {};
+    completedOrders = {};
+    customers = {};
+}
 
 void WareHouse::close() {
 
@@ -401,8 +415,6 @@ int stringToInt(const std::string &str) {
     int result = 0;
 
     if (!(iss >> result)) {
-        std::cerr << "Error: Conversion failed." << std::endl;
-        // Return a default value (0 in this case) if conversion fails
         return 0;
     }
 
@@ -461,6 +473,9 @@ WareHouse &WareHouse::operator=(const WareHouse &other) {
 
         for (Order *order : other.completedOrders) {
             completedOrders.push_back(new Order(*order));
+        }
+        for (Customer *customer : other.customers) {
+            customers.push_back(customer->clone());
         }
     }
     return *this;

@@ -43,6 +43,7 @@ class WareHouse {
 
         void backUp();
         void restore();
+        void resetVectors();
 
         void close();
         void open();
