@@ -17,7 +17,7 @@ class WareHouse {
         WareHouse(const string &configFilePath);
         void start();
         void addOrder(Order* order);
-        void AddCustomer(Customer* customer);
+        void addCustomer(Customer* customer);
         void addAction(BaseAction* action);
         Customer &getCustomer(int customerId) const;
         Volunteer &getVolunteer(int volunteerId) const;
@@ -43,7 +43,7 @@ class WareHouse {
 
         void backUp();
         void restore();
-        void resetVectors();
+        void resetAll();
 
         void close();
         void open();

@@ -179,22 +179,31 @@ AddCustomer::AddCustomer(const string &customerName, const string &customerType,
                          int distance, int maxOrders)
     : customerName(customerName), customerType(stringToType(customerType)),
       distance(distance), maxOrders(maxOrders) {}
+
 void AddCustomer::act(WareHouse &wareHouse) {
-    int newId = wareHouse.getOrderCounter();
+    int newId = wareHouse.getCustomerCounter();
     if (customerType == CustomerType::Soldier) {
-        SoldierCustomer newCustomer(newId, customerName, distance, maxOrders);
-        wareHouse.AddCustomer(&newCustomer);
+        SoldierCustomer *newCustomer = new SoldierCustomer(newId, customerName, distance, maxOrders);
+        wareHouse.addCustomer(newCustomer);
     }
     if (customerType == CustomerType::Civilian) {
-        CivilianCustomer newCustomer(newId, customerName, distance, maxOrders);
-        wareHouse.AddCustomer(&newCustomer);
+        CivilianCustomer *newCustomer = new CivilianCustomer(newId, customerName, distance, maxOrders);
+        wareHouse.addCustomer(newCustomer);
     }
     complete();
 }
 
 AddCustomer *AddCustomer::clone() const { return new AddCustomer(*this); }
 
-string AddCustomer::toString() const { return "Customer was added"; }
+string AddCustomer::toString() const { 
+    string type;
+    if(customerType == CustomerType::Soldier)
+        type = " solidier";
+    else   
+        type = " civilian";
+
+    return "customer " + customerName + type + " " + std::to_string(distance) + " " + std::to_string(maxOrders)  + " COMPLETED" ; 
+    }
 
 CustomerType AddCustomer::stringToType(const string &customerType) {
     if (customerType == "soldier")
@@ -274,6 +283,7 @@ string PrintCustomerStatus::toString() const {
     else
         return "customerStatus " + std::to_string(customerId) + " COMPLETED";
 }
+
 PrintCustomerStatus *PrintCustomerStatus::clone() const {
     return new PrintCustomerStatus(*this);
 }
@@ -288,50 +298,8 @@ void PrintVolunteerStatus::act(WareHouse &wareHouse) {
 
     else {
         Volunteer *volunteer = wareHouse.getVolunteer(volunteerId).clone();
-        string type = volunteer->getMyType();
-        string timeLeft = "None";
-        string orderLeft = "No Limit";
-        string orderId = "None";
-
-        // order id
-        if (volunteer->isBusy())
-            orderId = std::to_string(volunteer->getActiveOrderId());
-
-        // time\distance left
-        if (type == "collector") {
-            timeLeft = std::to_string(
-                dynamic_cast<CollectorVolunteer *>(volunteer)->getTimeLeft());
-        } else if (type == "driver" && volunteer->isBusy()) {
-            timeLeft = std::to_string(
-                dynamic_cast<DriverVolunteer *>(volunteer)->getDistanceLeft());
-        }
-
-        else if (type == "limitedCollector") {
-            timeLeft = std::to_string(
-                dynamic_cast<CollectorVolunteer *>(volunteer)->getTimeLeft());
-            orderLeft = std::to_string(
-                dynamic_cast<LimitedCollectorVolunteer *>(volunteer)
-                    ->getNumOrdersLeft()); // casting
-        }
-
-        else if (type == "limitedDriver") {
-            if (volunteer->isBusy())
-                timeLeft =
-                    std::to_string(dynamic_cast<DriverVolunteer *>(volunteer)
-                                       ->getDistanceLeft());
-            orderLeft =
-                std::to_string(dynamic_cast<LimitedDriverVolunteer *>(volunteer)
-                                   ->getNumOrdersLeft());
-        }
         complete();
-        std::cout << "VolunteerID: " + std::to_string(volunteerId) << std::endl;
-        if (volunteer->isBusy())
-            std::cout << "isBusy: True" << std::endl;
-        else
-            std::cout << "isBusy: False" << std::endl;
-        std::cout << "OrderID: " + orderId << std::endl;
-        std::cout << "TimeLeft: " + timeLeft << std::endl;
-        std::cout << "ordersLeft: " + orderLeft << std::endl;
+        std::cout << volunteer->toString() << std::endl;
     }
 }
 PrintVolunteerStatus *PrintVolunteerStatus::clone() const {

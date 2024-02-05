@@ -113,6 +113,7 @@ void WareHouse::start() {
     open();
     // read line
     while (isOpen) {
+        std::cout << " " << std::endl;
         std::cout << "insert action: " << std::flush;
         string input;
         std::getline(std::cin, input);
@@ -137,6 +138,7 @@ void WareHouse::start() {
             BackupWareHouse *backup = new BackupWareHouse();
             addAction(backup);
             backup->act(*this);
+            
         } else if (action == "restore") {
             RestoreWareHouse *restore = new RestoreWareHouse();
             restore->act(*this);
@@ -147,7 +149,7 @@ void WareHouse::start() {
             string name, type;
             int distance, maxOrders;
             ss >> name >> type >> distance >> maxOrders;
-            AddCustomer *cu = new AddCustomer(name, type, distance,maxOrders);
+            AddCustomer *cu = new AddCustomer(name, type, distance, maxOrders);
             cu->act(*this);
             addAction(cu);
 
@@ -174,9 +176,9 @@ void WareHouse::start() {
 
         else if (action == "customerStatus") {
             ss >> number;
-            PrintCustomerStatus print(number);
-            print.act(*this);
-            addAction(&print);
+            PrintCustomerStatus* print = new PrintCustomerStatus(number);
+            print->act(*this);
+            addAction(print);
 
         } else if (action == "step") {
             ss >> number;
@@ -194,7 +196,7 @@ void WareHouse::addOrder(Order *order) {
 
 void WareHouse::addAction(BaseAction *action) { actionsLog.push_back(action); }
 
-void WareHouse::AddCustomer(Customer *customer) {
+void WareHouse::addCustomer(Customer *customer) {
     customers.push_back(customer);
     customerCounter++;
 }
@@ -234,8 +236,11 @@ Order &WareHouse::getOrder(int orderId) const {
     return *order;
 }
 int WareHouse::getOrderCounter() const { return orderCounter; }
+
 int WareHouse::getVolunteerCounter() const { return volunteerCounter; }
+
 int WareHouse::getCustomerCounter() const { return customerCounter; }
+
 vector<Order *> WareHouse::getVectorOrders(string nameOfVector) const {
     if (nameOfVector == "pendingOrders")
         return pendingOrders;
@@ -245,7 +250,9 @@ vector<Order *> WareHouse::getVectorOrders(string nameOfVector) const {
         return completedOrders;
 }
 vector<Volunteer *> WareHouse::getVectorVolunteers() { return volunteers; }
+
 vector<Customer *> WareHouse::getVectorCustomers() const { return customers; }
+
 const vector<BaseAction *> &WareHouse::getActions() const { return actionsLog; }
 
 void WareHouse::findCollector(Order *order) {
@@ -371,11 +378,16 @@ void WareHouse::backUp() {
 }
 
 void WareHouse::restore() {
-    resetVectors();
+    resetAll();
     *this = *backup;
 }
 
-void WareHouse::resetVectors() {
+void WareHouse::resetAll() {
+    isOpen = false;
+    customerCounter = 0;
+    volunteerCounter = 0;
+    orderCounter = 0;
+
     actionsLog = {};
     volunteers = {};
     pendingOrders = {};
@@ -439,13 +451,37 @@ WareHouse::~WareHouse() {
 
 // Copy Constructor
 WareHouse::WareHouse(const WareHouse &other)
-    : isOpen(other.isOpen), actionsLog(other.actionsLog),
-      volunteers(other.volunteers), pendingOrders(other.pendingOrders),
-      inProcessOrders(other.inProcessOrders),
-      completedOrders(other.completedOrders), customers(other.customers),
+    : isOpen(other.isOpen), actionsLog(),
+      volunteers(), pendingOrders(),
+      inProcessOrders(),
+      completedOrders(), customers(),
       customerCounter(other.customerCounter),
       volunteerCounter(other.volunteerCounter),
-      orderCounter(other.orderCounter) {}
+      orderCounter(other.orderCounter) {
+        for (BaseAction *action : other.actionsLog) {
+            actionsLog.push_back(action->clone());
+        }
+
+        for (Volunteer *volunteer : other.volunteers) {
+            volunteers.push_back(volunteer->clone());
+        }
+
+        for (Customer *customer : other.customers) {
+            customers.push_back(customer->clone());
+        }
+
+        for (Order *order : other.pendingOrders) {
+            pendingOrders.push_back(new Order(*order));
+        }
+
+        for (Order *order : other.inProcessOrders) {
+            inProcessOrders.push_back(new Order(*order));
+        }
+
+        for (Order *order : other.completedOrders) {
+            completedOrders.push_back(new Order(*order));
+        }
+      }
 
 // // Copy Assignment Operator
 WareHouse &WareHouse::operator=(const WareHouse &other) {
@@ -463,6 +499,10 @@ WareHouse &WareHouse::operator=(const WareHouse &other) {
             volunteers.push_back(volunteer->clone());
         }
 
+        for (Customer *customer : other.customers) {
+            customers.push_back(customer->clone());
+        }
+
         for (Order *order : other.pendingOrders) {
             pendingOrders.push_back(new Order(*order));
         }
@@ -474,39 +514,42 @@ WareHouse &WareHouse::operator=(const WareHouse &other) {
         for (Order *order : other.completedOrders) {
             completedOrders.push_back(new Order(*order));
         }
-        for (Customer *customer : other.customers) {
-            customers.push_back(customer->clone());
-        }
+
     }
     return *this;
 }
 
 // Move Constructor
 WareHouse::WareHouse(WareHouse &&other) noexcept
-    : isOpen(std::move(other.isOpen)), actionsLog(std::move(other.actionsLog)),
-      volunteers(std::move(other.volunteers)),
-      pendingOrders(std::move(other.pendingOrders)),
-      inProcessOrders(std::move(other.inProcessOrders)),
-      completedOrders(std::move(other.completedOrders)),
-      customers(std::move(other.customers)),
-      customerCounter(std::move(other.customerCounter)),
-      volunteerCounter(std::move(other.volunteerCounter)),
-      orderCounter(std::move(other.orderCounter)) {}
+    : isOpen(other.isOpen),
+      actionsLog(other.actionsLog),
+      volunteers(other.volunteers),
+      pendingOrders(other.pendingOrders),
+      inProcessOrders(other.inProcessOrders),
+      completedOrders(other.completedOrders),
+      customers(other.customers),
+      customerCounter(other.customerCounter),
+      volunteerCounter(other.volunteerCounter),
+      orderCounter(other.orderCounter) {
+        other.resetAll();
+      }
+
 
 // Move Assignment Operator
 WareHouse &WareHouse::operator=(WareHouse &&other) noexcept {
     if (this != &other) {
+
         isOpen = other.isOpen;
         customerCounter = other.customerCounter;
         volunteerCounter = other.volunteerCounter;
         orderCounter = other.orderCounter;
-
-        actionsLog = std::move(other.actionsLog);
-        volunteers = std::move(other.volunteers);
-        customers = std::move(other.customers);
-        pendingOrders = std::move(other.pendingOrders);
-        inProcessOrders = std::move(other.inProcessOrders);
-        completedOrders = std::move(other.completedOrders);
+        actionsLog = other.actionsLog;
+        volunteers = other.volunteers;
+        customers = other.customers;
+        pendingOrders = other.pendingOrders;
+        inProcessOrders = other.inProcessOrders;
+        completedOrders = other.completedOrders;
     }
+    other.~WareHouse();
     return *this;
 };

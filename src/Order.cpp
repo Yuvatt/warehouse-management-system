@@ -16,6 +16,7 @@ int Order::getId() const { return id; }
 int Order::getCustomerId() const { return customerId; }
 
 void Order::setStatus(OrderStatus status) { this->status = status; }
+
 void Order::setCollectorId(int collectorId) { this->collectorId = collectorId; }
 
 void Order::setDriverId(int driverId) { this->driverId = driverId; }
@@ -26,7 +27,7 @@ int Order::getDriverId() const { return driverId; }
 
 OrderStatus Order::getStatus() const { return status; }
 
-// return the Order status in string
+// return the order status in string
 const string Order::getStatusString() const {
     if (status == OrderStatus::COLLECTING)
         return "Collecting";

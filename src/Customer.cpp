@@ -28,7 +28,7 @@ int Customer::addOrder(int orderId) {
     return orderId;
 }
 
-Customer::~Customer() {}; //todo?
+Customer::~Customer() {}; 
 
 
 // SoldierCustomer : Customer

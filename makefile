@@ -18,4 +18,4 @@ bin/%.o: $(SRC_DIR)/%.cpp
 clean:
 	rm -f bin/*
 
-.PHONY: all clean
+PHONY: all clean

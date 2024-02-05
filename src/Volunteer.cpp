@@ -6,7 +6,7 @@ using std::vector;
 
 #define NO_ORDER -1
 
-/// Volunteer
+///=====================================Volunteer=======================================
 
 Volunteer::Volunteer(int id, const string &name)
     : completedOrderId(NO_ORDER), activeOrderId(NO_ORDER), type(""), id(id), name(name) {};
@@ -26,11 +26,10 @@ bool Volunteer::isBusy() const { return (activeOrderId != NO_ORDER); }
 void Volunteer::resetActiveOrderId() { activeOrderId = NO_ORDER; }
 
 
-Volunteer::~Volunteer() {}; //todo?
+Volunteer::~Volunteer() {}; 
 
 
-//============= CollectorVolunteer: Volunteer
-//=============================================
+//============= CollectorVolunteer: Volunteer =============================================
 
 CollectorVolunteer::CollectorVolunteer(int id, const string &name, int coolDown)
     : Volunteer(id, name), coolDown(coolDown), timeLeft(coolDown){};
@@ -70,9 +69,16 @@ void CollectorVolunteer::acceptOrder(const Order &order) {
 string CollectorVolunteer::getMyType() const { return "collector"; }
 
 string CollectorVolunteer::toString() const {
-    string s = "volunteerID:" + getId();
-    string m = ",ActiveOrder:" + getActiveOrderId();
-    return s + m;
+    string a = "volunteerID: " + std::to_string(getId());
+    string b;
+    if(isBusy())
+        b = "isBusy: True";
+    else
+        b = "isBusy: False";
+    string c = "orderID: " + std::to_string(getActiveOrderId());
+    string d = "TimeLeft: " + std::to_string(timeLeft);
+    string e = "ordersLeft: No Limit"; 
+    return a + "\n" + b + "\n" + c + "\n" + d + "\n" + e;
 }
 
 void CollectorVolunteer::resetTimeLeft() { timeLeft = coolDown; }
@@ -112,13 +118,19 @@ string LimitedCollectorVolunteer::getMyType() const {
 }
 
 string LimitedCollectorVolunteer::toString() const {
-    string s = "volunteerID:" + getId();
-    string m = ",ActiveOrder:" + getActiveOrderId();
-    return s + m;
-}
+   string a = "volunteerID: " + std::to_string(getId());
+    string b;
+    if(isBusy())
+        b = "isBusy: True";
+    else
+        b = "isBusy: False";
+    string c = "orderID: " + std::to_string(getActiveOrderId());
+    string d = "TimeLeft: " + std::to_string(getTimeLeft());
+    string e = "ordersLeft: " + std::to_string(ordersLeft); 
+    return a + "\n" + b + "\n" + c + "\n" + d + "\n" + e;
+    }
 
-//  ===========================DriverVolunteer
-//  =============================================
+//  ===========================DriverVolunteer =============================================
 
 DriverVolunteer::DriverVolunteer(int id, const string &name, int maxDistance,
                                  int distancePerStep)
@@ -165,9 +177,16 @@ void DriverVolunteer::step() {
 string DriverVolunteer::getMyType() const { return "driver"; }
 
 string DriverVolunteer::toString() const {
-    string s = "volunteerID:" + getId();
-    string m = ",ActiveOrder:" + getActiveOrderId();
-    return s + m;
+    string a = "volunteerID: " + std::to_string(getId());
+    string b;
+    if(isBusy())
+        b = "isBusy: True";
+    else
+        b = "isBusy: False";
+    string c = "orderID: " + std::to_string(getActiveOrderId());
+    string d = "DistanceLeft: " + std::to_string(distanceLeft);
+    string e = "ordersLeft: No Limit"; 
+    return a + "\n" + b + "\n" + c + "\n" + d + "\n" + e;
 }
 
 void DriverVolunteer::setDistance(int distance) { distanceLeft = distance; }
@@ -204,7 +223,14 @@ void LimitedDriverVolunteer::acceptOrder(const Order &order) {
 }
 string LimitedDriverVolunteer::getMyType() const { return "limitedDriver"; }
 string LimitedDriverVolunteer::toString() const {
-    string s = "volunteerID:" + getId();
-    string m = ",ActiveOrder:" + getActiveOrderId();
-    return s + m;
+    string a = "volunteerID: " + std::to_string(getId());
+    string b;
+    if(isBusy())
+        b = "isBusy: True";
+    else
+        b = "isBusy: False";
+    string c = "orderID: " + std::to_string(getActiveOrderId());
+    string d = "DistanceLeft: " + std::to_string(getDistanceLeft());
+    string e = "ordersLeft: " + std::to_string(ordersLeft); 
+    return a + "\n" + b + "\n" + c + "\n" + d + "\n" + e;
 };
