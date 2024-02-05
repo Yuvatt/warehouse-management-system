@@ -5,7 +5,7 @@ SRC_DIR = src
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(patsubst $(SRC_DIR)/%.cpp,bin/%.o,$(SRCS))
 
-TARGET = main
+TARGET = warehouse
 
 all: clean $(TARGET)
 
