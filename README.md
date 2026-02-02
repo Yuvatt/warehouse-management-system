@@ -39,3 +39,14 @@ classDiagram
     
     Volunteer <|-- CollectorVolunteer
     Volunteer <|-- DriverVolunteer
+
+
+**## Key Features**
+**Polymorphism**: Diverse types of Volunteers (Collectors, Drivers) and Customers (Soldiers, Civilians) with unique behaviors.
+
+**Memory Safety**: Full implementation of the Rule of 5 (Destructor, Copy Constructor, Copy Assignment, Move Constructor, Move Assignment) to prevent memory leaks.
+
+**Command Pattern**: User commands (step, order, status) are parsed and executed as polymorphic objects inheriting from BaseAction.
+
+👤 Author
+Yuval and Michal - Computer Science Students, BGU
