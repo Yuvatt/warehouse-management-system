@@ -63,21 +63,12 @@ classDiagram
 
 ### 1. Build the Project
 Use the provided `makefile` to compile the source code.
-```bash
-make
-```
 
 ### 2. Run the Simulation
 The program requires a configuration file path as an argument.
-```bash
-./bin/warehouse src/configFile.txt
-```
 
 ### 3. Clean Up
 To remove object files and the executable:
-```bash
-make clean
-```
 
 ---
 
@@ -113,4 +104,4 @@ Once the simulation starts, you can use the following commands in the terminal:
 ---
 
 ### 👤 Author
-**Yuval** - *Computer Science Student, BGU*
+**Yuval Tal & Michal Nudelman** - *Computer Science Students, BGU*
