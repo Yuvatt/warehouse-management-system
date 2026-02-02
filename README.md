@@ -39,7 +39,8 @@ classDiagram
     
     Volunteer <|-- CollectorVolunteer
     Volunteer <|-- DriverVolunteer
-
+'''
+---
 
 **## Key Features**
 **Polymorphism**: Diverse types of Volunteers (Collectors, Drivers) and Customers (Soldiers, Civilians) with unique behaviors.
