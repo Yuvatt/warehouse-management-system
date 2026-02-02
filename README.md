@@ -12,7 +12,7 @@ This project implements a robust backend for managing inventory, volunteers, cus
 
 ## 🏗️ Architecture & Design
 
-The system is built using the **Command Design Pattern**, where every user interaction is encapsulated as an `Action` object.
+The system is built using the **Command Design Pattern**, where every user interaction is encapsulated as an `Action` object. The `WareHouse` class acts as the central controller, managing resources and game ticks.
 
 ```mermaid
 classDiagram
@@ -22,6 +22,7 @@ classDiagram
         -vector~Customer*~ customers
         -vector~BaseAction*~ actionsLog
         +start()
+        +step()
     }
     class BaseAction {
         <<abstract>>
@@ -29,25 +30,23 @@ classDiagram
     }
     class Volunteer {
         <<abstract>>
+        -int id
+        -int completedOrders
         +canTakeOrder(Order& order)
         +acceptOrder(Order& order)
+    }
+    class Customer {
+        <<abstract>>
+        -int id
+        -int maxOrders
     }
     
     WareHouse "1" *-- "*" Volunteer : manages
     WareHouse "1" *-- "*" Customer : serves
+    WareHouse "1" *-- "*" Order : processes
     BaseAction ..> WareHouse : modifies
     
     Volunteer <|-- CollectorVolunteer
     Volunteer <|-- DriverVolunteer
-'''
----
-
-**## Key Features**
-**Polymorphism**: Diverse types of Volunteers (Collectors, Drivers) and Customers (Soldiers, Civilians) with unique behaviors.
-
-**Memory Safety**: Full implementation of the Rule of 5 (Destructor, Copy Constructor, Copy Assignment, Move Constructor, Move Assignment) to prevent memory leaks.
-
-**Command Pattern**: User commands (step, order, status) are parsed and executed as polymorphic objects inheriting from BaseAction.
-
-👤 Author
-Yuval and Michal - Computer Science Students, BGU
+    Customer <|-- SoldierCustomer
+    Customer <|-- CivilianCustomer
