@@ -57,17 +57,17 @@ classDiagram
 * **Memory Safety:** Full implementation of the **Rule of 5** (Destructor, Copy Constructor, Copy Assignment, Move Constructor, Move Assignment) to prevent memory leaks.
 * **Command Pattern:** User commands (`step`, `order`, `status`) are parsed and executed as polymorphic objects inheriting from `BaseAction`.
 
----
+
 
 ## ⚙️ Installation & Usage
 
-### 1. Build the Project
+1. Build the Project
 Use the provided `makefile` to compile the source code.
 
-### 2. Run the Simulation
+2. Run the Simulation
 The program requires a configuration file path as an argument.
 
-### 3. Clean Up
+3. Clean Up
 To remove object files and the executable:
 
 ---
